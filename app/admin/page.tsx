@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AdminPage() {
   const supabase = await createClient();
 
-  // Get authenticated user
+  // 1) Get authenticated user
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -19,7 +19,7 @@ export default async function AdminPage() {
     redirect("/auth/login");
   }
 
-  // Check role
+  // 2) Check user role
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -30,7 +30,6 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  // Render admin dashboard
   return (
     <div className="p-10">
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
