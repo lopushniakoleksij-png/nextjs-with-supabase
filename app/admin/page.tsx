@@ -1,5 +1,9 @@
 // app/admin/page.tsx
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -12,23 +16,22 @@ export default async function AdminPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    // Not logged in → send to login page
     redirect("/auth/login");
   }
 
-  // 2) Fetch profile with role
+  // 2) Fetch role from profiles table
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .single();
 
-  // If no profile / not admin → redirect home
+  // 3) If no profile or not admin → redirect
   if (error || !profile || profile.role !== "admin") {
     redirect("/");
   }
 
-  // 3) Render admin dashboard
+  // 4) Render the admin dashboard
   return (
     <div className="p-10">
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
