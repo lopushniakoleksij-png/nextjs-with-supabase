@@ -5,22 +5,19 @@ export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import createClient from "@/lib/supabase/server";
 
 export default async function AdminPage() {
-  // Create server-side supabase client
   const supabase = await createClient();
 
-  // 1. Get user (server-side)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // 1. Get the authenticated user
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     redirect("/auth/login");
   }
 
-  // 2. Check profile/role
+  // 2. Fetch the role
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -31,6 +28,7 @@ export default async function AdminPage() {
     redirect("/");
   }
 
+  // 3. Render admin dashboard
   return (
     <div className="p-10">
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
