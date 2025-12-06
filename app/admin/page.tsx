@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AdminPage() {
   const supabase = await createClient();
 
-  // 1) Get the authenticated user
+  // Get authenticated user
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -19,19 +19,18 @@ export default async function AdminPage() {
     redirect("/auth/login");
   }
 
-  // 2) Fetch role from profiles table
-  const { data: profile, error } = await supabase
+  // Check role
+  const { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .single();
 
-  // 3) If no profile or not admin → redirect
-  if (error || !profile || profile.role !== "admin") {
+  if (!profile || profile.role !== "admin") {
     redirect("/");
   }
 
-  // 4) Render the admin dashboard
+  // Render admin dashboard
   return (
     <div className="p-10">
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
