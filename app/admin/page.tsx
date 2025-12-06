@@ -1,8 +1,8 @@
 // app/admin/page.tsx
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -11,13 +11,15 @@ export default async function AdminPage() {
   const supabase = await createClient();
 
   // 1. Get user
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    return redirect("/auth/login");
   }
 
-  // 2. Get user role
+  // 2. Check role
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -25,7 +27,7 @@ export default async function AdminPage() {
     .single();
 
   if (!profile || profile.role !== "admin") {
-    redirect("/");
+    return redirect("/");
   }
 
   return (
