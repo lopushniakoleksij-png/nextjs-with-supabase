@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -9,12 +11,10 @@ export default async function AdminPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect if not logged in
   if (!user) {
     redirect("/login");
   }
 
-  // Check if user is admin
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
