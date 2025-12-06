@@ -1,6 +1,4 @@
-// ⛔ Prevent prerendering completely
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -8,14 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AdminPage() {
   const supabase = await createClient();
 
-  // Get authenticated user
-  const { data: { user } } = await supabase.auth.getUser();
+  // Get user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!user) redirect("/login");
 
-  // Check if user is admin
+  // Check if admin
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
