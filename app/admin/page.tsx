@@ -1,16 +1,17 @@
 // app/admin/page.tsx
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminPage() {
+  // Create server-side supabase client
   const supabase = await createClient();
 
-  // 1) Get authenticated user
+  // 1. Get user (server-side)
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -19,7 +20,7 @@ export default async function AdminPage() {
     redirect("/auth/login");
   }
 
-  // 2) Check user role
+  // 2. Check profile/role
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
