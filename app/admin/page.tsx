@@ -1,3 +1,8 @@
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const runtime = "nodejs";   // 🔥 required
+export const revalidate = 0;
+export const preferredRegion = "auto";
 // app/admin/page.tsx
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
