@@ -7,8 +7,8 @@ export const config = {
 export function middleware() {
   return NextResponse.next({
     headers: {
-      "x-middleware-cache": "no-cache",
+      "x-no-cache": "true",
+      "cache-control": "no-store",
     },
   });
 }
-
