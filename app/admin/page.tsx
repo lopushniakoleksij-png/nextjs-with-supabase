@@ -1,47 +1,38 @@
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const runtime = "nodejs";   // 🔥 required
-export const revalidate = 0;
-export const preferredRegion = "auto";
-// app/admin/page.tsx
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
+"use client";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = 0;
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+export default function AdminPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
 
-export default async function AdminPage() {
-  // Create server-side supabase client
-  const supabase = await createClient();
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return router.push("/login");
 
-  // 1. Get authenticated user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
 
-  if (!user) {
-    redirect("/login");
-  }
+      if (!profile || profile.role !== "admin") return router.push("/");
 
-  // 2. Check user role
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+      setLoading(false);
+    }
+    checkAuth();
+  }, []);
 
-  if (!profile || profile.role !== "admin") {
-    redirect("/");
-  }
+  if (loading) return <p>Loading…</p>;
 
   return (
     <div className="p-10">
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-      <p className="mt-4 text-gray-600">Welcome, Admin!</p>
+      <p>Welcome, Admin!</p>
     </div>
   );
 }
