@@ -5,6 +5,8 @@ export const revalidate = 0;
 export const runtime = "nodejs";  // 🔥 required
 export const preferredRegion = "auto";
 
-export default function AdminLayout({ children }) {
+import { ReactNode } from "react";
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
