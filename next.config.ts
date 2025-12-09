@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
+  experimental: {
+    proxyTimeout: 0,
+  },
+
+  // 👇 THIS FIXES THE BUILD ERROR
+  middleware: false,
 };
 
 export default nextConfig;
