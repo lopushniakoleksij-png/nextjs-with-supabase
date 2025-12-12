@@ -1,3 +1,4 @@
+console.log("LoginForm rendered");
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -26,8 +27,10 @@ export function LoginForm({
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  console.log("SUBMIT FIRED");
+
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
