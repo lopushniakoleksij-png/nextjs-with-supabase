@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { AuthButton } from "@/components/auth-button";
 
@@ -10,7 +8,6 @@ export function Header() {
         <Link href="/" className="font-semibold">
           Promo Platform
         </Link>
-
         <AuthButton />
       </div>
     </header>
