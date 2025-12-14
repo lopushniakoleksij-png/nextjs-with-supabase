@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton"
 
 export default function SignUpPage() {
   const supabase = createClient()
@@ -47,8 +48,7 @@ export default function SignUpPage() {
       <div className="max-w-md mx-auto mt-20 text-center space-y-4">
         <h1 className="text-2xl font-semibold">Check your email 📩</h1>
         <p className="text-muted-foreground">
-          We sent you a confirmation link.<br />
-          Click it to activate your account.
+          We sent you a confirmation link. Click it to activate your account.
         </p>
       </div>
     )
@@ -64,9 +64,10 @@ export default function SignUpPage() {
           <input
             type="email"
             required
+            disabled={loading}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 disabled:opacity-60"
           />
         </div>
 
@@ -76,9 +77,10 @@ export default function SignUpPage() {
             type="password"
             required
             minLength={6}
+            disabled={loading}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 disabled:opacity-60"
           />
         </div>
 
@@ -88,9 +90,10 @@ export default function SignUpPage() {
             type="password"
             required
             minLength={6}
+            disabled={loading}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded px-3 py-2 disabled:opacity-60"
           />
         </div>
 
@@ -98,15 +101,12 @@ export default function SignUpPage() {
           <p className="text-sm text-red-500">{error}</p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-black text-white py-2 rounded disabled:opacity-60"
-        >
-          {loading ? "Creating account..." : "Sign up"}
-        </button>
+        <AuthSubmitButton
+          loading={loading}
+          text="Sign up"
+          loadingText="Creating account..."
+        />
       </form>
     </div>
   )
 }
-
