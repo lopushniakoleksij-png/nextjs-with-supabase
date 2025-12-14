@@ -1,37 +1,28 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 
-export default function SignUpForm() {
-  const router = useRouter();
-  const supabase = createClient();
+export function SignUpForm() {
+  const supabase = createClient()
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-
-    // ✅ Frontend validation
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
+      setError("Passwords do not match")
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -39,52 +30,76 @@ export default function SignUpForm() {
       options: {
         emailRedirectTo: `${location.origin}/auth/callback`,
       },
-    });
+    })
 
-    setLoading(false);
+    setLoading(false)
 
     if (error) {
-      setError(error.message);
-      return;
+      setError(error.message)
+      return
     }
 
-    router.push("/auth/sign-up-success");
+    setSuccess(true)
+  }
+
+  if (success) {
+    return (
+      <div className="text-center space-y-4">
+        <h2 className="text-xl font-semibold">Check your email 📩</h2>
+        <p className="text-sm text-muted-foreground">
+          We sent you a confirmation link.
+        </p>
+      </div>
+    )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        type="email"
-        placeholder="Email"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
+      <div>
+        <label className="block text-sm mb-1">Email</label>
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border rounded px-3 py-2"
+        />
+      </div>
 
-      <Input
-        type="password"
-        placeholder="Password"
-        required
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <div>
+        <label className="block text-sm mb-1">Password</label>
+        <input
+          type="password"
+          required
+          minLength={6}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border rounded px-3 py-2"
+        />
+      </div>
 
-      <Input
-        type="password"
-        placeholder="Confirm password"
-        required
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
+      <div>
+        <label className="block text-sm mb-1">Confirm password</label>
+        <input
+          type="password"
+          required
+          minLength={6}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="w-full border rounded px-3 py-2"
+        />
+      </div>
 
-      {error && (
-        <p className="text-sm text-red-500">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <Button type="submit" disabled={loading} className="w-full">
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-black text-white py-2 rounded disabled:opacity-60"
+      >
         {loading ? "Creating account..." : "Sign up"}
-      </Button>
+      </button>
     </form>
-  );
+  )
 }
 
