@@ -1,29 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton"
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function SignUpPage() {
-  const supabase = createClient()
+  const supabase = createClient();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError("Passwords do not match");
+      return;
     }
 
-    setLoading(true)
+    setIsLoading(true);
+    setError(null);
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -31,27 +33,28 @@ export default function SignUpPage() {
       options: {
         emailRedirectTo: `${location.origin}/auth/callback`,
       },
-    })
-
-    setLoading(false)
+    });
 
     if (error) {
-      setError(error.message)
-      return
+      setError(error.message);
+      setIsLoading(false);
+      return;
     }
 
-    setSuccess(true)
-  }
+    setSuccess(true);
+    setIsLoading(false);
+  };
 
   if (success) {
     return (
       <div className="max-w-md mx-auto mt-20 text-center space-y-4">
-        <h1 className="text-2xl font-semibold">Check your email 📩</h1>
+        <h1 className="text-2xl font-semibold">Check your email 📬</h1>
         <p className="text-muted-foreground">
-          We sent you a confirmation link. Click it to activate your account.
+          We sent you a confirmation link.<br />
+          Click it to activate your account.
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -60,53 +63,49 @@ export default function SignUpPage() {
 
       <form onSubmit={handleSignUp} className="space-y-4">
         <div>
-          <label className="block text-sm mb-1">Email</label>
-          <input
+          <Label>Email</Label>
+          <Input
             type="email"
             required
-            disabled={loading}
+            disabled={isLoading}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded px-3 py-2 disabled:opacity-60"
           />
         </div>
 
         <div>
-          <label className="block text-sm mb-1">Password</label>
-          <input
+          <Label>Password</Label>
+          <Input
             type="password"
             required
-            minLength={6}
-            disabled={loading}
+            disabled={isLoading}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded px-3 py-2 disabled:opacity-60"
           />
         </div>
 
         <div>
-          <label className="block text-sm mb-1">Confirm password</label>
-          <input
+          <Label>Confirm password</Label>
+          <Input
             type="password"
             required
-            minLength={6}
-            disabled={loading}
+            disabled={isLoading}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full border rounded px-3 py-2 disabled:opacity-60"
           />
         </div>
 
-        {error && (
-          <p className="text-sm text-red-500">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <AuthSubmitButton
-          loading={loading}
-          text="Sign up"
-          loadingText="Creating account..."
-        />
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating account..." : "Sign up"}
+        </Button>
       </form>
     </div>
-  )
+  );
 }
+
