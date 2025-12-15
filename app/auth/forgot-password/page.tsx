@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 export default function ForgotPasswordPage() {
@@ -9,11 +12,10 @@ export default function ForgotPasswordPage() {
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const handleResetRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleReset = async () => {
     setError(null);
     setLoading(true);
 
@@ -36,9 +38,9 @@ export default function ForgotPasswordPage() {
       <div className="max-w-md mx-auto mt-20 text-center space-y-4">
         <h1 className="text-2xl font-semibold">Check your email 📩</h1>
         <p className="text-muted-foreground">
-          If an account exists, you’ll receive a password reset link.
+          We sent you a password reset link.
         </p>
-        <Link href="/auth/login" className="underline text-sm">
+        <Link href="/auth/login" className="underline">
           Back to login
         </Link>
       </div>
@@ -46,32 +48,28 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-20">
-      <h1 className="text-2xl font-semibold mb-6">Forgot password</h1>
+    <div className="max-w-md mx-auto mt-20 space-y-6">
+      <h1 className="text-2xl font-semibold">Forgot password</h1>
 
-      <form onSubmit={handleResetRequest} className="space-y-4">
-        <div>
-          <label className="block text-sm mb-1">Email</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
+      <div className="space-y-2">
+        <Label>Email</Label>
+        <Input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-black text-white py-2 rounded disabled:opacity-60"
-        >
-          {loading ? "Sending..." : "Send reset link"}
-        </button>
-      </form>
+      <Button
+        className="w-full"
+        disabled={loading}
+        onClick={handleReset}
+      >
+        {loading ? "Sending..." : "Send reset link"}
+      </Button>
     </div>
   );
 }
