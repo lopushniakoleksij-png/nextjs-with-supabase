@@ -28,15 +28,19 @@ export function LoginForm({
   const router = useRouter();
 
   const handleLogin = async () => {
-    console.log("LOGIN CLICKED");
+    // ⛔ Prevent double submit (spam click protection)
+    if (isLoading) return;
 
+    // Reset previous error
+    setError(null);
+
+    // Basic validation
     if (!email || !password) {
       setError("Email and password are required");
       return;
     }
 
     setIsLoading(true);
-    setError(null);
 
     const supabase = createClient();
 
@@ -46,11 +50,16 @@ export function LoginForm({
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
+      // ✅ Success → redirect
       router.push("/");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Login failed. Try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +77,7 @@ export function LoginForm({
 
         <CardContent>
           <div className="flex flex-col gap-6">
+            {/* Email */}
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -75,16 +85,18 @@ export function LoginForm({
                 type="email"
                 placeholder="m@example.com"
                 value={email}
+                disabled={isLoading}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
+            {/* Password */}
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Password</Label>
                 <Link
                   href="/auth/forgot-password"
-                  className="ml-auto text-sm underline-offset-4 hover:underline"
+                  className="ml-auto text-sm underline underline-offset-4 hover:opacity-80"
                 >
                   Forgot your password?
                 </Link>
@@ -93,23 +105,34 @@ export function LoginForm({
                 id="password"
                 type="password"
                 value={password}
+                disabled={isLoading}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {/* Error */}
+            {error && (
+              <p className="text-sm text-red-500" role="alert">
+                {error}
+              </p>
+            )}
 
+            {/* Submit */}
             <Button
               className="w-full"
-              disabled={isLoading}
               onClick={handleLogin}
+              disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? "Logging in…" : "Login"}
             </Button>
 
-            <div className="mt-4 text-center text-sm">
+            {/* Footer */}
+            <div className="text-center text-sm">
               Don&apos;t have an account?{" "}
-              <Link href="/auth/sign-up" className="underline underline-offset-4">
+              <Link
+                href="/auth/sign-up"
+                className="underline underline-offset-4"
+              >
                 Sign up
               </Link>
             </div>
@@ -119,4 +142,3 @@ export function LoginForm({
     </div>
   );
 }
-
