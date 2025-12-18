@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
-import AuthButton from "@/components/auth-button"; // ✅ DEFAULT import
+import AuthButton from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import { hasEnvVars } from "@/lib/utils";
@@ -18,7 +18,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
+  // ✅ FIX: await the client
+  const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -28,12 +30,12 @@ export default async function RootLayout({
       <body className="min-h-screen bg-background text-foreground">
         <header className="border-b">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            {/* LEFT */}
+            {/* Logo */}
             <Link href="/" className="text-lg font-semibold">
               Promo Platform
             </Link>
 
-            {/* RIGHT */}
+            {/* Actions */}
             <div className="flex items-center gap-4">
               <ThemeSwitcher />
 
@@ -61,7 +63,9 @@ export default async function RootLayout({
           </div>
         </header>
 
-        <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+        <main className="mx-auto max-w-6xl px-6 py-8">
+          {children}
+        </main>
       </body>
     </html>
   );
