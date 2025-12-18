@@ -1,41 +1,24 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { LogoutButton } from "./logout-button";
+"use client";
 
-export default async function AuthButton() {
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+
+export default function AuthButton() {
   const supabase = createClient();
+  const router = useRouter();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const logout = async () => {
+    await supabase.auth.signOut({ scope: "global" });
+    router.refresh();
+  };
 
-  // NOT LOGGED IN
-  if (!user) {
-    return (
-      <div className="flex items-center gap-3">
-        <Link
-          href="/auth/login"
-          className="text-sm text-gray-600 hover:text-black"
-        >
-          Sign in
-        </Link>
-
-        <Link
-          href="/auth/sign-up"
-          className="rounded-md bg-black px-4 py-2 text-sm text-white hover:bg-gray-800"
-        >
-          Sign up
-        </Link>
-      </div>
-    );
-  }
-
-  // LOGGED IN
   return (
-    <div className="flex items-center gap-4 text-sm">
-      <span className="text-gray-600">{user.email}</span>
-      <LogoutButton />
-    </div>
+    <button
+      onClick={logout}
+      className="rounded-md bg-black px-3 py-2 text-sm text-white"
+    >
+      Logout
+    </button>
   );
 }
 
