@@ -2,31 +2,31 @@
 
 import * as React from "react";
 
-export type ToastProps = {
+export type Toast = {
   id: string;
   title?: string;
   description?: string;
-  variant?: "default" | "destructive";
+  action?: React.ReactNode;
 };
 
-type ToastContextValue = {
-  toasts: ToastProps[];
-  toast: (toast: Omit<ToastProps, "id">) => void;
+type ToastContextType = {
+  toasts: Toast[];
+  toast: (toast: Omit<Toast, "id">) => void;
 };
 
-const ToastContext = React.createContext<ToastContextValue | null>(null);
+const ToastContext = React.createContext<ToastContextType | undefined>(
+  undefined
+);
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
-  const [toasts, setToasts] = React.useState<ToastProps[]>([]);
+  const [toasts, setToasts] = React.useState<Toast[]>([]);
 
-  function toast(data: Omit<ToastProps, "id">) {
-    const id = crypto.randomUUID();
-    setToasts((prev) => [...prev, { id, ...data }]);
-
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
-  }
+  const toast = React.useCallback((toast: Omit<Toast, "id">) => {
+    setToasts((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), ...toast },
+    ]);
+  }, []);
 
   return (
     <ToastContext.Provider value={{ toasts, toast }}>
@@ -36,10 +36,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useToast() {
-  const ctx = React.useContext(ToastContext);
-  if (!ctx) {
+  const context = React.useContext(ToastContext);
+  if (!context) {
     throw new Error("useToast must be used inside ToastProvider");
   }
-  return ctx;
+  return context;
 }
 
