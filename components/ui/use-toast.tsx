@@ -14,13 +14,18 @@ type ToastContextType = {
   toast: (toast: Omit<Toast, "id">) => void
 }
 
-const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
+const ToastContext = React.createContext<ToastContextType | undefined>(
+  undefined
+)
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<Toast[]>([])
 
   const toast = (toast: Omit<Toast, "id">) => {
-    setToasts((prev) => [...prev, { id: crypto.randomUUID(), ...toast }])
+    setToasts((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), ...toast },
+    ])
   }
 
   return (
