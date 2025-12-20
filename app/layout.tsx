@@ -1,14 +1,38 @@
-import { ToastProvider } from "@/components/ui/use-toast"
+import type { Metadata } from "next"
+import { Geist } from "next/font/google"
+import { ThemeProvider } from "next-themes"
+import "@/app/globals.css"
+
 import { Toaster } from "@/components/ui/toaster"
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const geistSans = Geist({
+  subsets: ["latin"],
+})
+
+export const metadata: Metadata = {
+  title: "Next.js + Supabase",
+  description: "Starter with shadcn/ui toast",
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body>
-        <ToastProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={geistSans.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
-          <Toaster />
-        </ToastProvider>
+        </ThemeProvider>
+
+        {/* ✅ THIS IS REQUIRED */}
+        <Toaster />
       </body>
     </html>
   )
