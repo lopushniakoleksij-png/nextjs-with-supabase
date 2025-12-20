@@ -7,20 +7,20 @@ import { cn } from "@/lib/utils"
 export const ToastProvider = ToastPrimitives.Provider
 export const ToastViewport = ToastPrimitives.Viewport
 
-export const Toast = React.forwardRef<
-  React.ElementRef<typeof ToastPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>
->(({ className, ...props }, ref) => (
-  <ToastPrimitives.Root
-    ref={ref}
-    className={cn(
-      "bg-background border rounded-md p-4 shadow-md",
-      className
-    )}
-    {...props}
-  />
-))
-Toast.displayName = "Toast"
+export function Toast({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>) {
+  return (
+    <ToastPrimitives.Root
+      className={cn(
+        "bg-black text-white border border-white/20 rounded-md p-4",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
 export const ToastTitle = ToastPrimitives.Title
 export const ToastDescription = ToastPrimitives.Description
