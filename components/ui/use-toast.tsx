@@ -9,20 +9,18 @@ export type ToastProps = {
   variant?: "default" | "destructive";
 };
 
-const ToastContext = React.createContext<{
+type ToastContextValue = {
   toasts: ToastProps[];
   toast: (toast: Omit<ToastProps, "id">) => void;
-}>({
-  toasts: [],
-  toast: () => {},
-});
+};
+
+const ToastContext = React.createContext<ToastContextValue | null>(null);
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<ToastProps[]>([]);
 
   function toast(data: Omit<ToastProps, "id">) {
     const id = crypto.randomUUID();
-
     setToasts((prev) => [...prev, { id, ...data }]);
 
     setTimeout(() => {
@@ -38,6 +36,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useToast() {
-  return React.useContext(ToastContext);
+  const ctx = React.useContext(ToastContext);
+  if (!ctx) {
+    throw new Error("useToast must be used inside ToastProvider");
+  }
+  return ctx;
 }
 
