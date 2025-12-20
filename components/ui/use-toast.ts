@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 
 export type Toast = {
@@ -13,21 +11,22 @@ type ToastContextType = {
   toast: (toast: Omit<Toast, "id">) => void
 }
 
-const ToastContext = React.createContext<ToastContextType | undefined>(undefined)
+const ToastContext = React.createContext<ToastContextType | undefined>(
+  undefined
+)
 
-export function ToastProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<Toast[]>([])
 
-  const toast = (toast: Omit<Toast, "id">) => {
-    setToasts((prev) => [
-      ...prev,
-      { ...toast, id: crypto.randomUUID() },
-    ])
-  }
+  const toast = React.useCallback(
+    ({ title, description }: Omit<Toast, "id">) => {
+      setToasts((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), title, description },
+      ])
+    },
+    []
+  )
 
   return (
     <ToastContext.Provider value={{ toasts, toast }}>
