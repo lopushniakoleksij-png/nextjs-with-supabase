@@ -1,9 +1,9 @@
 import { DeployButton } from "@/components/deploy-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
-import AuthButton from "@/components/auth-button";
-import { Hero } from "@/components/hero";
+import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
+import { Hero } from "@/components/hero";
 
 export default function Page() {
   return (

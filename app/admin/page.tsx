@@ -1,38 +1,33 @@
-"use client";
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { PromoCodesAdmin } from "./promo-codes-admin"
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+export default async function AdminPage() {
+  const supabase = await createClient()
 
-export default function AdminPage() {
-  const router = useRouter();
-  const supabase = createClient();
-  const [loading, setLoading] = useState(true);
+  const { data: auth } = await supabase.auth.getUser()
+  if (!auth.user) redirect("/auth/login")
 
-  useEffect(() => {
-    async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return router.push("/login");
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("role,email")
+    .eq("id", auth.user.id)
+    .single()
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-      if (!profile || profile.role !== "admin") return router.push("/");
-
-      setLoading(false);
-    }
-    checkAuth();
-  }, []);
-
-  if (loading) return <p>Loading…</p>;
+  if (error || !profile || profile.role !== "admin") {
+    redirect("/dashboard")
+  }
 
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-      <p>Welcome, Admin!</p>
+    <div className="mx-auto w-full max-w-4xl p-6">
+      <h1 className="text-2xl font-semibold">Admin Panel</h1>
+      <p className="text-sm text-muted-foreground mt-1">
+        Logged in as {profile.email} — role: {profile.role}
+      </p>
+
+      <div className="mt-6">
+        <PromoCodesAdmin />
+      </div>
     </div>
-  );
+  )
 }
