@@ -39,4 +39,9 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+next-env.d.tshh
+# local / cloud junk
+.tmp.driveupload/
+.tmp.drivedownload/
+.vscode/
+
