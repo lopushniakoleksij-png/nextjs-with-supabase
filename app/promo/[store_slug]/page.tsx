@@ -1,108 +1,53 @@
-"use client";
+import { createClient } from "@/lib/supabase/server";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-
-type Promo = {
-  id: string;
-  code: string;
-  discount: string;
-  active: boolean;
-  expires_at: string | null;
-  store_name: string;
+type PageProps = {
+  params: {
+    store_slug: string;
+  };
 };
 
-export default function PromoCodesPage() {
-  const supabase = createClient();
-  const [promos, setPromos] = useState<Promo[]>([]);
-  const [loading, setLoading] = useState(true);
+type PromoCode = {
+  id: string;
+  code: string;
+  description: string | null;
+  expires_at: string | null;
+};
 
-  useEffect(() => {
-    const loadPromos = async () => {
-      const { data, error } = await supabase
-        .from("promo_codes")
-        .select("id, code, discount, active, expires_at, store_name")
-        .order("created_at", { ascending: false });
+export default async function PromoCodesByStorePage({ params }: PageProps) {
+  const supabase = await createClient(); // ✅ await fixed
 
-      if (!error && data) {
-        setPromos(data);
-      }
+  const { data: promos, error } = await supabase
+    .from("promo_codes")
+    .select("id, code, description, expires_at")
+    .eq("store_slug", params.store_slug)
+    .eq("is_verified", true);
 
-      setLoading(false);
-    };
+  if (error) {
+    console.error(error);
+    return <div>Error loading promo codes</div>;
+  }
 
-    loadPromos();
-  }, [supabase]);
-
-  if (loading) {
-    return (
-      <div className="p-6">
-        <p className="text-sm text-muted-foreground">Loading promo codes…</p>
-      </div>
-    );
+  if (!promos || promos.length === 0) {
+    return <div>No promo codes found for this store.</div>;
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Promo codes</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage all promo codes on the platform
-        </p>
-      </div>
+    <div>
+      <h1 className="text-xl font-bold mb-4">
+        Promo codes for {params.store_slug}
+      </h1>
 
-      <div className="rounded-lg border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Code</TableHead>
-              <TableHead>Store</TableHead>
-              <TableHead>Discount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Expires</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {promos.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
-                  No promo codes found
-                </TableCell>
-              </TableRow>
+      <ul className="space-y-3">
+        {promos.map((promo: PromoCode) => (
+          <li key={promo.id} className="border p-3 rounded">
+            <strong>{promo.code}</strong>
+            {promo.description && <p>{promo.description}</p>}
+            {promo.expires_at && (
+              <small>Expires: {new Date(promo.expires_at).toDateString()}</small>
             )}
-
-            {promos.map((promo) => (
-              <TableRow key={promo.id}>
-                <TableCell className="font-mono">{promo.code}</TableCell>
-                <TableCell>{promo.store_name}</TableCell>
-                <TableCell>{promo.discount}</TableCell>
-                <TableCell>
-                  {promo.active ? (
-                    <Badge>Active</Badge>
-                  ) : (
-                    <Badge variant="secondary">Inactive</Badge>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {promo.expires_at
-                    ? new Date(promo.expires_at).toLocaleDateString()
-                    : "—"}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

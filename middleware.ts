@@ -1,48 +1,42 @@
-import { createServerClient } from "@supabase/ssr"
-import { NextResponse, type NextRequest } from "next/server"
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { supabaseUrl, supabaseAnonKey } from "./lib/supabase/config";
 
-export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
 
   const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name: string) {
-          return request.cookies.get(name)?.value
+          return req.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: any) {
-          response.cookies.set({ name, value, ...options })
+          res.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: any) {
-          response.cookies.set({ name, value: "", ...options })
+          res.cookies.set({ name, value: "", ...options });
         },
       },
     }
-  )
+  );
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname
-  const isAuthRoute = pathname.startsWith("/auth")
-  const isDashboardRoute = pathname.startsWith("/dashboard")
+  const isAuthPage = req.nextUrl.pathname.startsWith("/auth");
 
-  // 🚫 Not logged in → block dashboard
-  if (!user && isDashboardRoute) {
-    return NextResponse.redirect(new URL("/auth/login", request.url))
+  if (!user && !isAuthPage) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
-  // ✅ Logged in → block auth pages
-  if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", request.url))
-  }
-
-  return response
+  return res;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/:path*"],
-}
+  matcher: ["/dashboard/:path*"],
+};

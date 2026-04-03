@@ -1,5 +1,11 @@
 import "./globals.css";
-import { ToastProvider } from "@/app/providers/ToastProvider";
+import type { Metadata } from "next";
+import FingerprintInit from "../components/FingerprintInit"; // ✅ FIXED
+
+export const metadata: Metadata = {
+  title: "Promo Code Platform",
+  description: "Find verified promo codes and deals",
+};
 
 export default function RootLayout({
   children,
@@ -9,9 +15,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        <FingerprintInit />
+        {children}
       </body>
     </html>
   );
