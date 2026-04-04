@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function approvePromoCode(id: string) {
+export async function approvePromo(id: string) {
   const supabase = await createClient();
 
   const {

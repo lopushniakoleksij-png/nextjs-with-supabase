@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { approvePromoCode } from "@/app/actions/approve-promo-code";
-import { rejectPromoCode } from "@/app/actions/reject-promo-code";
+import { approvePromo } from "@/app/actions/approve-promo-code";
+import { rejectPromo } from "@/app/actions/reject-promo-code";
 
 type PromoCodeRow = {
   id: string;
@@ -20,8 +20,6 @@ export default async function PromoCodesPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    // if you already handle auth in middleware/layout, you can remove this.
-    // But it's safe.
     return (
       <div className="p-6">
         <h1 className="text-xl font-bold">Promo Codes</h1>
@@ -75,43 +73,45 @@ export default async function PromoCodesPage() {
                     Status:{" "}
                     <span
                       className={
-                        promo.approved ? "text-green-700 font-medium" : "text-orange-600 font-medium"
+                        promo.approved
+                          ? "text-green-700 font-medium"
+                          : "text-orange-600 font-medium"
                       }
                     >
                       {status}
                     </span>
                   </div>
 
-                  {promo.description ? (
+                  {promo.description && (
                     <div className="text-sm text-gray-600">{promo.description}</div>
-                  ) : null}
+                  )}
 
-                  {promo.expires_at ? (
-                    <div className="text-sm text-gray-500">Expires: {promo.expires_at}</div>
-                  ) : null}
+                  {promo.expires_at && (
+                    <div className="text-sm text-gray-500">
+                      Expires: {promo.expires_at}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
                   {/* APPROVE */}
-                  <form action={approvePromoCode}>
+                  <form action={approvePromo}>
                     <input type="hidden" name="id" value={promo.id} />
                     <button
                       type="submit"
                       className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
                       disabled={promo.approved}
-                      title={promo.approved ? "Already approved" : "Approve"}
                     >
                       Approve
                     </button>
                   </form>
 
-                  {/* REJECT (delete) */}
-                  <form action={rejectPromoCode}>
+                  {/* REJECT */}
+                  <form action={rejectPromo}>
                     <input type="hidden" name="id" value={promo.id} />
                     <button
                       type="submit"
                       className="bg-red-600 text-white px-4 py-2 rounded"
-                      title="Reject"
                     >
                       Reject
                     </button>

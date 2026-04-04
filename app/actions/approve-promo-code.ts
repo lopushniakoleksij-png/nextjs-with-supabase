@@ -3,7 +3,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export async function approvePromo(id: string) {
+export async function approvePromo(formData: FormData) {
+  const id = formData.get("id") as string;
+
   const supabase = await createClient();
 
   const { error } = await supabase
