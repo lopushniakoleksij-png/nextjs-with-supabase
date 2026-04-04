@@ -23,12 +23,14 @@ export async function middleware(req: NextRequest) {
     }
   );
 
+  // 🔐 Get user session
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const isAuthPage = req.nextUrl.pathname.startsWith("/auth");
 
+  // 🚫 Redirect if not logged in
   if (!user && !isAuthPage) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
@@ -36,6 +38,7 @@ export async function middleware(req: NextRequest) {
   return res;
 }
 
+// 🔥 Protect routes
 export const config = {
   matcher: ["/dashboard/:path*"],
 };
