@@ -30,7 +30,9 @@ export default async function PromoCodesPage() {
 
   const { data, error } = await supabase
     .from("promo_codes")
-    .select("id, code, store_slug, description, expires_at, approved, created_at")
+    .select(
+      "id, code, store_slug, description, expires_at, approved, created_at"
+    )
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -49,7 +51,9 @@ export default async function PromoCodesPage() {
       <h1 className="text-2xl font-bold mb-6">Promo Codes</h1>
 
       {promos.length === 0 ? (
-        <div className="border rounded p-4 text-gray-600">No promo codes yet.</div>
+        <div className="border rounded p-4 text-gray-600">
+          No promo codes yet.
+        </div>
       ) : (
         <div className="space-y-4">
           {promos.map((promo) => {
@@ -62,11 +66,15 @@ export default async function PromoCodesPage() {
               >
                 <div className="space-y-1">
                   <div className="text-sm text-gray-600">
-                    Store: <span className="font-medium">{promo.store_slug}</span>
+                    Store:{" "}
+                    <span className="font-medium">
+                      {promo.store_slug}
+                    </span>
                   </div>
 
                   <div className="text-sm text-gray-600">
-                    Code: <span className="font-medium">{promo.code}</span>
+                    Code:{" "}
+                    <span className="font-medium">{promo.code}</span>
                   </div>
 
                   <div className="text-sm">
@@ -83,7 +91,9 @@ export default async function PromoCodesPage() {
                   </div>
 
                   {promo.description && (
-                    <div className="text-sm text-gray-600">{promo.description}</div>
+                    <div className="text-sm text-gray-600">
+                      {promo.description}
+                    </div>
                   )}
 
                   {promo.expires_at && (
@@ -94,7 +104,7 @@ export default async function PromoCodesPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  {/* APPROVE */}
+                  {/* ✅ APPROVE */}
                   <form action={approvePromo}>
                     <input type="hidden" name="id" value={promo.id} />
                     <button
@@ -106,7 +116,7 @@ export default async function PromoCodesPage() {
                     </button>
                   </form>
 
-                  {/* REJECT */}
+                  {/* ✅ REJECT */}
                   <form action={rejectPromo}>
                     <input type="hidden" name="id" value={promo.id} />
                     <button
