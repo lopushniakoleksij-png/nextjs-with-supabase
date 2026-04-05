@@ -1,10 +1,11 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
 
-export async function deletePromo(id: string) {
+export async function deletePromo(formData: FormData) {
   const supabase = await createClient();
+
+  const id = formData.get("id") as string;
 
   const { error } = await supabase
     .from("promo_codes")
@@ -13,8 +14,5 @@ export async function deletePromo(id: string) {
 
   if (error) {
     console.error("DELETE ERROR:", error);
-    return;
   }
-
-  revalidatePath("/dashboard");
 }

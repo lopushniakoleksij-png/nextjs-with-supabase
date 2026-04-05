@@ -51,6 +51,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6">
+      {/* 📊 Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="bg-white p-4 rounded shadow">
           <p>Total</p>
@@ -83,19 +84,25 @@ export default async function DashboardPage() {
               </p>
 
               <div className="flex gap-2 mt-4">
-                <form action={approvePromo.bind(null, code.id)}>
+                {/* ✅ APPROVE */}
+                <form action={approvePromo}>
+                  <input type="hidden" name="id" value={code.id} />
                   <button className="bg-green-600 text-white px-3 py-1 rounded">
                     Approve
                   </button>
                 </form>
 
-                <form action={rejectPromo.bind(null, code.id)}>
+                {/* ✅ REJECT */}
+                <form action={rejectPromo}>
+                  <input type="hidden" name="id" value={code.id} />
                   <button className="bg-yellow-500 text-white px-3 py-1 rounded">
                     Reject
                   </button>
                 </form>
 
-                <form action={deletePromo.bind(null, code.id)}>
+                {/* ✅ DELETE */}
+                <form action={deletePromo}>
+                  <input type="hidden" name="id" value={code.id} />
                   <button className="bg-red-600 text-white px-3 py-1 rounded">
                     Delete
                   </button>

@@ -1,12 +1,11 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 
 export async function approvePromo(formData: FormData) {
-  const id = formData.get("id") as string;
-
   const supabase = await createClient();
+
+  const id = formData.get("id") as string;
 
   const { error } = await supabase
     .from("promo_codes")
@@ -15,8 +14,5 @@ export async function approvePromo(formData: FormData) {
 
   if (error) {
     console.error("APPROVE ERROR:", error);
-    return;
   }
-
-  redirect("/dashboard");
 }
