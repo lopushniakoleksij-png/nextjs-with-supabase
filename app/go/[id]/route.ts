@@ -1,23 +1,26 @@
-import { redirect } from "next/navigation"
+import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-export async function GET(
+export async function POST(
   req: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   const supabase = await createClient()
 
-  const id = context.params.id
+  const id = params.id
 
-  const { data } = await supabase
-    .from("promo_codes")
-    .select("destination_url")
-    .eq("id", id)
-    .single()
+  const { success } = await req.json()
 
-  if (!data?.destination_url) {
-    redirect("https://google.com")
+  const field = success ? "works_count" : "fail_count"
+
+  const { error } = await supabase.rpc("increment", {
+    row_id: id,
+    column_name: field,
+  })
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  redirect(data.destination_url)
+  return NextResponse.json({ success: true })
 }
