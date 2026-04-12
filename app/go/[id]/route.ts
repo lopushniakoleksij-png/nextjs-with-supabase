@@ -1,21 +1,23 @@
-import { NextResponse } from "next/server"
+import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const supabase = await createClient() // ✅ IMPORTANT
+  const supabase = await createClient()
 
-  const { data, error } = await supabase
+  const id = context.params.id
+
+  const { data } = await supabase
     .from("promo_codes")
     .select("destination_url")
-    .eq("id", params.id)
+    .eq("id", id)
     .single()
 
-  if (error || !data) {
-    return NextResponse.redirect("https://google.com")
+  if (!data?.destination_url) {
+    redirect("https://google.com")
   }
 
-  return NextResponse.redirect(data.destination_url)
+  redirect(data.destination_url)
 }
