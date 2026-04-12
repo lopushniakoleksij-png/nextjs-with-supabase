@@ -23,6 +23,7 @@
         "./*"
       ]
     },
+    "ignoreDeprecations": "6.0",
     "plugins": [
       {
         "name": "next"
@@ -34,8 +35,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "next.config.mjs"
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
