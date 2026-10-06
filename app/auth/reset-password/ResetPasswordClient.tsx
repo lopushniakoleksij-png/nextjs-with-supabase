@@ -34,8 +34,8 @@ export default function ResetPasswordClient() {
         }
 
         setStep("ready");
-      } catch (err: any) {
-        setErrorMsg(err.message || "Reset link invalid.");
+      } catch (error: unknown) {
+        setErrorMsg(error instanceof Error ? error.message : "Reset link invalid.");
         setStep("error");
       }
     };
@@ -72,8 +72,8 @@ export default function ResetPasswordClient() {
       setTimeout(() => {
         router.replace("/auth/login?reset=1");
       }, 800);
-    } catch (err: any) {
-      setErrorMsg(err.message || "Failed to update password.");
+    } catch (error: unknown) {
+      setErrorMsg(error instanceof Error ? error.message : "Failed to update password.");
     } finally {
       setSaving(false);
     }
