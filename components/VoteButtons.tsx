@@ -6,6 +6,11 @@ type Props = {
   promoId: string;
 };
 
+type VoteResponse = {
+  error?: string;
+  successRate?: number;
+};
+
 export default function VoteButtons({ promoId }: Props) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -21,25 +26,19 @@ export default function VoteButtons({ promoId }: Props) {
 
       const res = await fetch("/api/vote", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          promoId,
-          voteType,
-          fingerprint,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ promoId, voteType, fingerprint }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as VoteResponse;
 
       if (!res.ok) {
         setMessage(data.error || "Error");
         return;
       }
 
-      setMessage(`Success rate: ${data.successRate}%`);
-    } catch (err) {
+      setMessage(`Success rate: ${data.successRate ?? 0}%`);
+    } catch {
       setMessage("Failed to fetch");
     } finally {
       setLoading(false);
@@ -64,9 +63,7 @@ export default function VoteButtons({ promoId }: Props) {
         👎 Didn’t work
       </button>
 
-      {message && (
-        <p className="mt-2 text-sm font-medium">{message}</p>
-      )}
+      {message && <p className="mt-2 text-sm font-medium">{message}</p>}
     </div>
   );
 }
