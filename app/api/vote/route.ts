@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid vote payload" }, { status: 400 });
     }
 
-    const supabase = createAdminClient();
+    const supabase = createPublicServerClient();
     const { data, error } = await supabase.rpc("record_promo_vote", {
       p_promo_id: promoId,
       p_vote_type: voteType,
