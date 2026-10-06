@@ -53,7 +53,6 @@ export async function addPromoCode(formData: FormData) {
     destination_url: parsedDestination.toString(),
     expires_at: expiresAt,
     submitted_by: user.id,
-    approved: false,
   });
 
   if (error) {
