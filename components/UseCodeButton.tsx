@@ -5,39 +5,26 @@ import { useState } from "react";
 export default function UseCodeButton({
   code,
   promoId,
-  url,
 }: {
   code: string;
   promoId: string;
-  url?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
   const handleClick = async () => {
     try {
-      // ✅ copy to clipboard
       await navigator.clipboard.writeText(code);
       setCopied(true);
-
-      // ✅ track click
-      await fetch("/api/click", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ promoId }),
-      });
-
-      // ✅ redirect after short delay
-      setTimeout(() => {
-        if (url) {
-          window.open(url, "_blank");
-        }
-      }, 800);
-
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // Clipboard access can be unavailable in some browsers.
     }
+
+    const fingerprint = localStorage.getItem("fp") || "";
+    const target = fingerprint
+      ? `/go/${promoId}?fp=${encodeURIComponent(fingerprint)}`
+      : `/go/${promoId}`;
+
+    window.open(target, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -45,7 +32,7 @@ export default function UseCodeButton({
       onClick={handleClick}
       className="bg-black text-white px-3 py-1 mt-3 hover:bg-gray-800 rounded"
     >
-      {copied ? "Copied!" : "Use Code"}
+      {copied ? "Copied! Open Deal" : "Use Code"}
     </button>
   );
 }
