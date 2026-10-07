@@ -1,47 +1,36 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { approvePromo } from "@/app/actions/approve-promo-code";
 import { rejectPromo } from "@/app/actions/reject-promo-code";
 
 type PromoCodeRow = {
   id: string;
   code: string;
-  store_slug: string;
+  title: string | null;
   description: string | null;
   expires_at: string | null;
   approved: boolean;
+  is_active: boolean;
   created_at: string;
+  stores:
+    | { name: string; slug: string }
+    | { name: string; slug: string }[]
+    | null;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function PromoCodesPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return (
-      <div className="p-6">
-        <h1 className="text-xl font-bold">Promo Codes</h1>
-        <p className="mt-2">You are not logged in.</p>
-      </div>
-    );
-  }
+  const { supabase } = await requireAdmin();
 
   const { data, error } = await supabase
     .from("promo_codes")
     .select(
-      "id, code, store_slug, description, expires_at, approved, created_at"
+      "id, code, title, description, expires_at, approved, is_active, created_at, stores(name, slug)"
     )
     .order("created_at", { ascending: false });
 
   if (error) {
-    return (
-      <div className="p-6">
-        <h1 className="text-xl font-bold">Promo Codes</h1>
-        <p className="mt-2 text-red-600">DB error: {error.message}</p>
-      </div>
-    );
+    throw new Error(error.message);
   }
 
   const promos = (data ?? []) as PromoCodeRow[];
@@ -57,7 +46,14 @@ export default async function PromoCodesPage() {
       ) : (
         <div className="space-y-4">
           {promos.map((promo) => {
-            const status = promo.approved ? "Approved" : "Pending";
+            const store = Array.isArray(promo.stores)
+              ? promo.stores[0]
+              : promo.stores;
+            const status = promo.approved
+              ? promo.is_active
+                ? "Approved"
+                : "Disabled"
+              : "Pending";
 
             return (
               <div
@@ -68,27 +64,21 @@ export default async function PromoCodesPage() {
                   <div className="text-sm text-gray-600">
                     Store:{" "}
                     <span className="font-medium">
-                      {promo.store_slug}
+                      {store?.name || store?.slug || "Store"}
                     </span>
                   </div>
 
                   <div className="text-sm text-gray-600">
-                    Code:{" "}
-                    <span className="font-medium">{promo.code}</span>
+                    Code: <span className="font-medium">{promo.code}</span>
                   </div>
 
                   <div className="text-sm">
-                    Status:{" "}
-                    <span
-                      className={
-                        promo.approved
-                          ? "text-green-700 font-medium"
-                          : "text-orange-600 font-medium"
-                      }
-                    >
-                      {status}
-                    </span>
+                    Status: <span className="font-medium">{status}</span>
                   </div>
+
+                  {promo.title && (
+                    <div className="text-sm font-medium">{promo.title}</div>
+                  )}
 
                   {promo.description && (
                     <div className="text-sm text-gray-600">
@@ -98,25 +88,24 @@ export default async function PromoCodesPage() {
 
                   {promo.expires_at && (
                     <div className="text-sm text-gray-500">
-                      Expires: {promo.expires_at}
+                      Expires:{" "}
+                      {new Date(promo.expires_at).toLocaleDateString("en-GB")}
                     </div>
                   )}
                 </div>
 
                 <div className="flex gap-2">
-                  {/* ✅ APPROVE */}
                   <form action={approvePromo}>
                     <input type="hidden" name="id" value={promo.id} />
                     <button
                       type="submit"
                       className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-                      disabled={promo.approved}
+                      disabled={promo.approved && promo.is_active}
                     >
                       Approve
                     </button>
                   </form>
 
-                  {/* ✅ REJECT */}
                   <form action={rejectPromo}>
                     <input type="hidden" name="id" value={promo.id} />
                     <button

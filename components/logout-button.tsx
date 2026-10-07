@@ -9,7 +9,6 @@ export function LogoutButton() {
   const supabase = createClient();
   const router = useRouter();
   const { showToast } = useToast();
-
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
@@ -26,10 +25,8 @@ export function LogoutButton() {
       }
 
       showToast("Logged out successfully", "success");
-
-      // redirect to login
       router.replace("/auth/login");
-    } catch (err) {
+    } catch {
       showToast("Failed to log out", "error");
     } finally {
       setLoading(false);
@@ -46,4 +43,3 @@ export function LogoutButton() {
     </button>
   );
 }
-

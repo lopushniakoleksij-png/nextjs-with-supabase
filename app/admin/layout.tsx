@@ -1,12 +1,16 @@
-// app/admin/layout.tsx
+import { ReactNode } from "react";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
+
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const revalidate = 0;
-export const runtime = "nodejs";  // 🔥 required
-export const preferredRegion = "auto";
+export const runtime = "nodejs";
 
-import { ReactNode } from "react";
-
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  await requireAdmin();
   return <>{children}</>;
 }

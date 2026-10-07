@@ -8,15 +8,21 @@ export default function AddPromoCodePage() {
 
         <input
           name="code"
-          placeholder="PROMO2025"
+          placeholder="SAVE20"
           required
           className="border p-2 w-full"
         />
 
         <input
           name="store_slug"
-          placeholder="amazon"
+          placeholder="store-slug"
           required
+          className="border p-2 w-full"
+        />
+
+        <input
+          name="title"
+          placeholder="20% off selected items"
           className="border p-2 w-full"
         />
 
@@ -27,16 +33,28 @@ export default function AddPromoCodePage() {
         />
 
         <input
+          type="url"
+          name="destination_url"
+          placeholder="https://merchant.example/offer"
+          required
+          className="border p-2 w-full"
+        />
+
+        <input
           type="date"
           name="expires_at"
           className="border p-2 w-full"
         />
 
+        <p className="text-sm text-gray-500">
+          New submissions remain pending until an administrator approves them.
+        </p>
+
         <button
           type="submit"
           className="bg-black text-white px-4 py-2 rounded"
         >
-          Save promo code
+          Submit promo code
         </button>
       </form>
     </div>

@@ -1,72 +1,45 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createPublicServerClient } from "@/lib/supabase/public-server";
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function POST(req: Request) {
   try {
-    const { promoId, voteType, fingerprint } = await req.json();
+    const body = await req.json();
+    const promoId = String(body?.promoId || "");
+    const voteType = body?.voteType;
+    const fingerprint = String(body?.fingerprint || "");
 
-    if (!promoId || !voteType || !fingerprint) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    if (
+      !UUID_PATTERN.test(promoId) ||
+      !["worked", "failed"].includes(voteType) ||
+      fingerprint.length < 8 ||
+      fingerprint.length > 200
+    ) {
+      return NextResponse.json({ error: "Invalid vote payload" }, { status: 400 });
     }
 
-    // ✅ Server-side Supabase client (NO NEXT_PUBLIC)
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = createPublicServerClient();
+    const { data, error } = await supabase.rpc("record_promo_vote", {
+      p_promo_id: promoId,
+      p_vote_type: voteType,
+      p_fingerprint: fingerprint,
+    });
 
-    // 🔹 Insert vote (ignore duplicates)
-    const { error: insertError } = await supabase
-      .from("promo_votes")
-      .insert([
-        {
-          promo_id: promoId,
-          vote_type: voteType,
-          fingerprint: fingerprint,
-        },
-      ]);
-
-    // Ignore duplicate error (user already voted)
-    if (insertError && insertError.code !== "23505") {
-      return NextResponse.json(
-        { error: insertError.message },
-        { status: 500 }
-      );
+    if (error) {
+      const status = error.message.includes("promo not available") ? 404 : 400;
+      return NextResponse.json({ error: error.message }, { status });
     }
 
-    // 🔹 Get updated stats
-    const { data: stats, error: statsError } = await supabase
-      .from("promo_votes")
-      .select("vote_type")
-      .eq("promo_id", promoId);
-
-    if (statsError) {
-      return NextResponse.json(
-        { error: statsError.message },
-        { status: 500 }
-      );
-    }
-
-    const worked = stats.filter((v) => v.vote_type === "worked").length;
-    const failed = stats.filter((v) => v.vote_type === "failed").length;
-
-    const successRate =
-      worked + failed === 0
-        ? 0
-        : Math.round((worked / (worked + failed)) * 100);
+    const stats = Array.isArray(data) ? data[0] : data;
 
     return NextResponse.json({
-      successRate,
-      worked,
-      failed,
+      successRate: stats?.success_rate ?? 0,
+      worked: stats?.worked ?? 0,
+      failed: stats?.failed ?? 0,
     });
-  } catch (err) {
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

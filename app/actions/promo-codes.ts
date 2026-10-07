@@ -1,26 +1,36 @@
-"use server"
+"use server";
 
-import { createClient } from "@/lib/supabase/server"
-import { revalidatePath } from "next/cache"
+import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 export async function togglePromoCode(id: string, isActive: boolean) {
-  const supabase = await createClient()
+  if (!id) throw new Error("Promo id is required");
 
-  await supabase
+  const { supabase } = await requireAdmin();
+
+  const { error } = await supabase
     .from("promo_codes")
     .update({ is_active: !isActive })
-    .eq("id", id)
+    .eq("id", id);
 
-  revalidatePath("/admin/promo-codes")
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/promo-codes");
+  revalidatePath("/dashboard");
 }
 
 export async function deletePromoCode(id: string) {
-  const supabase = await createClient()
+  if (!id) throw new Error("Promo id is required");
 
-  await supabase
+  const { supabase } = await requireAdmin();
+
+  const { error } = await supabase
     .from("promo_codes")
     .delete()
-    .eq("id", id)
+    .eq("id", id);
 
-  revalidatePath("/admin/promo-codes")
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/promo-codes");
+  revalidatePath("/dashboard");
 }

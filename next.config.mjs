@@ -1,8 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true, // 🔥 THIS FIXES YOUR BLOCKER
-  },
-}
+const nextConfig = {};
 
-export default nextConfig
+export default nextConfig;
