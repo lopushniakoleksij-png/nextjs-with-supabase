@@ -20,9 +20,12 @@ export default function ForgotPasswordPage() {
 
     try {
       const { error: authError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        // Request reset on the canonical public website, rather than on a
-        // short-lived Vercel preview whose URL may not be on the allowlist.
-        redirectTo: window.location.origin + "/auth/reset-password",
+        // Always use the canonical origin; preview URLs should not appear in
+        // recovery links sent to production accounts.
+        redirectTo: new URL(
+          "/auth/reset-password",
+          process.env.NEXT_PUBLIC_SITE_URL || window.location.origin,
+        ).toString(),
       });
       if (authError) {
         if (authError.code === "over_email_send_rate_limit" || authError.status === 429) {
