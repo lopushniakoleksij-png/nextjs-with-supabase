@@ -8,8 +8,11 @@ const siteUrl =
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Promo Code Platform",
-  description: "Find verified promo codes and deals",
+  title: {
+    default: "Promo Code 4 | UK Deals & Discount Codes",
+    template: "%s | Promo Code 4",
+  },
+  description: "Discover approved UK promotional offers, compare community feedback and save deals for later.",
 };
 
 export default function RootLayout({
