@@ -13,6 +13,7 @@ import {
   TicketPercent,
 } from "lucide-react";
 import UseCodeButton from "@/components/UseCodeButton";
+import SaveDealButton from "@/components/save-deal-button";
 
 export type PromoItem = {
   id: string;
@@ -134,9 +135,9 @@ export default function DealDiscovery({ promos }: { promos: PromoItem[] }) {
                 There are no approved promo codes live yet. We&apos;ll show real offers here as soon as they are added.
               </p>
               <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <a href="#how-it-works" className="inline-flex items-center gap-2 rounded-full bg-[#211b57] px-5 py-3 text-sm font-bold text-white hover:bg-[#42338d]">
+                <Link href="/about" className="inline-flex items-center gap-2 rounded-full bg-[#211b57] px-5 py-3 text-sm font-bold text-white hover:bg-[#42338d]">
                   See how it works <ArrowRight size={16} aria-hidden="true" />
-                </a>
+                </Link>
                 <Link href="/auth/sign-up" className="inline-flex items-center rounded-full border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Create account</Link>
               </div>
             </>
@@ -188,6 +189,7 @@ export default function DealDiscovery({ promos }: { promos: PromoItem[] }) {
                   )}
                 </div>
                 <div className="mt-4 border-t border-slate-100 pt-4">
+                  <div className="mb-3 flex justify-end"><SaveDealButton promoId={promo.id} /></div>
                   <UseCodeButton code={promo.code} promoId={promo.id} />
                 </div>
               </article>
