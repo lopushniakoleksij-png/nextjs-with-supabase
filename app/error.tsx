@@ -15,9 +15,9 @@ export default function ErrorPage({
         <span className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#fff0ed] text-[#a4473c]">
           <AlertTriangle size={28} aria-hidden="true" />
         </span>
-        <h1 className="mt-5 text-2xl font-black tracking-tight">We couldn't load this page.</h1>
+        <h1 className="mt-5 text-2xl font-black tracking-tight">We couldn&apos;t load this page.</h1>
         <p className="mt-3 text-sm leading-7 text-slate-600">
-          The service is temporarily unavailable. Please try again shortly. We won't display fake deals while data is unavailable.
+          The service is temporarily unavailable. Please try again shortly. We won&apos;t display fake deals while data is unavailable.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <button
