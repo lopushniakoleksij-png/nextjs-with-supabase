@@ -45,7 +45,9 @@ export default async function HomePage() {
                 <span className="block text-[#c9fa7a]">Less guesswork.</span>
               </h1>
               <p className="mt-4 max-w-[500px] text-base leading-7 text-[#c4c6dc] sm:text-lg sm:leading-8">
-                Find promo codes from UK stores, see real community feedback, and shop with more confidence.
+                {promos.length === 0
+                  ? "We’re preparing our first approved UK retailer offers. See how the platform works while our catalogue grows."
+                  : "Find promo codes from UK stores, review community feedback, and shop with more confidence."}
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <a href={promos.length === 0 ? "#how-it-works" : "#offers"} className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-[#c9fa7a] px-6 py-3 text-sm font-extrabold text-[#171c31] transition hover:bg-[#e1ffb4]">
