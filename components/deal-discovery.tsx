@@ -9,6 +9,7 @@ import {
   CircleX,
   Search,
   SlidersHorizontal,
+  Sparkles,
   TicketPercent,
 } from "lucide-react";
 import UseCodeButton from "@/components/UseCodeButton";
