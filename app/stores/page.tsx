@@ -6,7 +6,7 @@ import StoreDirectory, { type PublicStore } from "@/components/store-directory";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Browse UK Stores | Promo Code 4",
+  title: "Browse UK Stores",
   description: "Browse UK retailers with active store listings and discover available promo codes.",
 };
 
