@@ -17,9 +17,10 @@ export default async function SavedDealsPage() {
   const now = new Date().toISOString();
   const { data, error } = await supabase
     .from("promo_codes")
-    .select("id, code, title, description, expires_at, created_at, worked_count, failed_count, click_count, stores(name, slug)")
+    .select("id, code, title, description, expires_at, created_at, worked_count, failed_count, click_count, stores!inner(name, slug)")
     .eq("approved", true)
     .eq("is_active", true)
+    .eq("stores.is_active", true)
     .or("expires_at.is.null,expires_at.gt." + now)
     .order("created_at", { ascending: false });
 
