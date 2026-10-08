@@ -7,7 +7,6 @@ import {
   ChevronRight,
   ClipboardCheck,
   Compass,
-  LockKeyhole,
   MousePointerClick,
   Search,
   ShieldCheck,
