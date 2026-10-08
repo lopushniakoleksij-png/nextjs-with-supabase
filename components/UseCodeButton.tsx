@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
+import { ArrowUpRight, Copy, Check } from "lucide-react";
 
 export default function UseCodeButton({
   code,
@@ -11,28 +12,38 @@ export default function UseCodeButton({
 }) {
   const [copied, setCopied] = useState(false);
 
-  const handleClick = async () => {
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    // A real anchor preserves native new-tab behavior and avoids
+    // popup blockers caused by awaiting a clipboard operation.
     try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
+      const fingerprint = window.localStorage.getItem("fp");
+      if (fingerprint) {
+        event.currentTarget.href =
+          "/go/" + promoId + "?fp=" + encodeURIComponent(fingerprint);
+      }
     } catch {
-      // Clipboard access can be unavailable in some browsers.
+      // The tracked redirect works even if local storage is unavailable.
     }
 
-    const fingerprint = localStorage.getItem("fp") || "";
-    const target = fingerprint
-      ? `/go/${promoId}?fp=${encodeURIComponent(fingerprint)}`
-      : `/go/${promoId}`;
-
-    window.open(target, "_blank", "noopener,noreferrer");
+    if (navigator.clipboard?.writeText) {
+      void navigator.clipboard.writeText(code)
+        .then(() => setCopied(true))
+        .catch(() => {});
+    }
   };
 
   return (
-    <button
+    <a
+      href={"/go/" + promoId}
+      target="_blank"
+      rel="noopener noreferrer"
       onClick={handleClick}
-      className="bg-black text-white px-3 py-1 mt-3 hover:bg-gray-800 rounded"
+      className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-2xl bg-[#211b57] px-4 py-3 text-sm font-extrabold text-white transition hover:bg-[#46368f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7859e1] focus-visible:ring-offset-2"
+      aria-label={"Copy code " + code + " and open deal"}
     >
-      {copied ? "Copied! Open Deal" : "Use Code"}
-    </button>
+      {copied ? <Check size={17} aria-hidden="true" /> : <Copy size={17} aria-hidden="true" />}
+      <span>{copied ? "Code copied — open deal" : "Copy code & open deal"}</span>
+      <ArrowUpRight size={16} aria-hidden="true" />
+    </a>
   );
 }
