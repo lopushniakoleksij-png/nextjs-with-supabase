@@ -6,6 +6,26 @@ The default Supabase email link can return an authorization `code` for PKCE. A c
 
 This branch adds a **token-hash recovery** option. Verification of a one-time `recovery` token directly against Supabase binds the password change to the identity proved by the email link, without trusting a previously logged-in account. Legacy PKCE remains supported when the verifier is available.
 
+## Immediate iPhone recovery without changing Supabase email templates
+
+This version also supports the **existing** Supabase recovery email template.
+From Gmail on iPhone, **long-press** the blue Reset Password link in the newest,
+unused email and tap **Copy link** (do not open it). On the app's
+`/auth/reset-password` page, paste it into **Paste the recovery link from Gmail**
+and tap **Verify recovery link**. The browser checks that the URL is
+`https://hwyjxkckawewklyrzbpe.supabase.co/auth/v1/verify`, that the type is
+`recovery`, and that a nonempty one-time token hash exists. The browser sends
+only that hash to Supabase `verifyOtp`; no URL or token is sent to the Next.js
+backend or a chat. The UI clears the pasted secret after verification.
+
+An **already clicked** email link may be consumed and cannot be reused. Wait
+for the rate limit to expire, request one fresh email, and copy it *without
+opening it*.
+
+Changing the hosted email template as below remains the **recommended**
+production upgrade for one-click recovery directly from Gmail. It is **not
+required** for the copy/paste fallback to work.
+
 ## Required operations BEFORE calling this resolved
 
 1. Confirm the deployed application is built from this GitHub repository. The current Vercel connector cannot read the team's project deployment/environment (403), so this is **not yet confirmed**.
