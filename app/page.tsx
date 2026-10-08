@@ -34,28 +34,28 @@ export default async function HomePage() {
           <div aria-hidden="true" className="pointer-events-none absolute -right-36 -top-48 h-[520px] w-[520px] rounded-full bg-[#6b46d9]/35 blur-[80px]" />
           <div aria-hidden="true" className="pointer-events-none absolute -bottom-56 -left-32 h-[390px] w-[390px] rounded-full bg-[#4837a8]/30 blur-[70px]" />
 
-          <div className="relative mx-auto grid max-w-6xl items-center gap-7 px-5 pb-11 pt-10 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-24">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-7 px-5 pb-9 pt-9 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-24">
             <div className="max-w-[610px]">
               <span className="inline-flex items-center gap-2 rounded-full border border-[#aeb1ee]/25 bg-white/10 px-3.5 py-2 text-xs font-bold tracking-wide text-[#d7d5ff]">
                 <span className="h-2 w-2 rounded-full bg-[#c9fa7a]" />
                 MADE FOR SMARTER UK SHOPPING
               </span>
-              <h1 className="mt-7 text-[clamp(2.35rem,6vw,5rem)] font-black leading-[1.04] tracking-[-0.06em]">
+              <h1 className="mt-5 text-[clamp(2.25rem,6vw,5rem)] font-black leading-[1.04] tracking-[-0.06em]">
                 Good deals.
                 <span className="block text-[#c9fa7a]">Less guesswork.</span>
               </h1>
-              <p className="mt-6 max-w-[500px] text-base leading-7 text-[#c4c6dc] sm:text-lg sm:leading-8">
+              <p className="mt-4 max-w-[500px] text-base leading-7 text-[#c4c6dc] sm:text-lg sm:leading-8">
                 Find promo codes from UK stores, see real community feedback, and shop with more confidence.
               </p>
-              <div className="mt-9 flex flex-wrap items-center gap-3">
-                <a href="#offers" className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full bg-[#c9fa7a] px-6 py-3 text-sm font-extrabold text-[#171c31] transition hover:bg-[#e1ffb4]">
-                  Explore deals <ArrowRight size={18} aria-hidden="true" />
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <a href={promos.length === 0 ? "#how-it-works" : "#offers"} className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-[#c9fa7a] px-6 py-3 text-sm font-extrabold text-[#171c31] transition hover:bg-[#e1ffb4]">
+                  {promos.length === 0 ? "How it works" : "Explore deals"} <ArrowRight size={18} aria-hidden="true" />
                 </a>
-                <a href="#how-it-works" className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-                  How it works <ChevronRight size={18} aria-hidden="true" />
+                <a href={promos.length === 0 ? "#offers" : "#how-it-works"} className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+                  {promos.length === 0 ? "Offer status" : "How it works"} <ChevronRight size={18} aria-hidden="true" />
                 </a>
               </div>
-              <div className="mt-11 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-medium text-[#c3c5df] sm:text-sm">
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-medium text-[#c3c5df] sm:text-sm">
                 <span className="inline-flex items-center gap-2"><ShieldCheck size={17} className="text-[#c9fa7a]" aria-hidden="true" /> Approved offers</span>
                 <span className="inline-flex items-center gap-2"><BadgeCheck size={17} className="text-[#c9fa7a]" aria-hidden="true" /> Community feedback</span>
               </div>
@@ -99,12 +99,12 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section id="offers" className="scroll-mt-24 mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
-          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <section id="offers" className="scroll-mt-24 mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-20">
+          <div className="mb-5 flex flex-col justify-between gap-3 sm:mb-8 sm:flex-row sm:items-end">
             <div>
               <span className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#6844db]">Explore offers</span>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] sm:text-4xl">Discover your next deal.</h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">Search approved, active promo codes. Your results update as new offers are added.</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-0.045em] sm:text-4xl">{promos.length === 0 ? "Our first offers are on the way." : "Discover your next deal."}</h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">{promos.length === 0 ? "We are onboarding retailers. The first approved offers will appear here when they are available." : "Search approved, active promo codes. Your results update as new offers are added."}</p>
             </div>
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
               <span className="h-2 w-2 rounded-full bg-[#8254e4]" />
