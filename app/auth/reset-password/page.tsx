@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
+const INVALID_LINK_MESSAGE =
+  "We could not verify this recovery link. It may be expired, already used, or opened in a different browser session.";
+
 export default function ResetPasswordPage() {
   const supabase = useMemo(() => createClient(), []);
-  const [verified, setVerified] = useState(false);
+  const verification = useRef<Promise<string> | null>(null);
+  const [recoveryUserId, setRecoveryUserId] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
@@ -16,42 +20,80 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     let active = true;
+    let recoveryEventUserId: string | null = null;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!active) return;
-      if ((event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") && session) {
-        setVerified(true);
-        setChecking(false);
-        setError(null);
-      }
+      // A normal SIGNED_IN or INITIAL_SESSION event does not prove that
+      // this browser has a password-recovery token for that account.
+      if (!active || event !== "PASSWORD_RECOVERY" || !session?.user) return;
+      recoveryEventUserId = session.user.id;
+      setRecoveryUserId(session.user.id);
+      setChecking(false);
+      setError(null);
     });
 
     async function initialize() {
       try {
-        // Exchange a one-time recovery code first. An existing browser login
-        // must not override the identity carried by this recovery link.
-        const code = new URLSearchParams(window.location.search).get("code");
+        const query = new URLSearchParams(window.location.search);
+        const fragment = new URLSearchParams(window.location.hash.slice(1));
+
+        if (query.has("error") || fragment.has("error")) {
+          throw new Error(INVALID_LINK_MESSAGE);
+        }
+
+        const tokenHash = query.get("token_hash");
+        const code = query.get("code");
+
+        if (tokenHash && query.get("type") === "recovery") {
+          // Email-template TokenHash + verifyOtp works when Gmail opens the
+          // recovery link in another browser (no PKCE verifier is required).
+          // Reuse the same promise in React Strict Mode: tokens are single-use.
+          verification.current ??= (async () => {
+            const { data, error: otpError } = await supabase.auth.verifyOtp({
+              token_hash: tokenHash,
+              type: "recovery",
+            });
+            if (otpError || !data.user || !data.session) {
+              throw new Error(INVALID_LINK_MESSAGE);
+            }
+            return data.user.id;
+          })();
+          const userId = await verification.current;
+          window.history.replaceState(window.history.state, "", window.location.pathname);
+          if (active) setRecoveryUserId(userId);
+          return;
+        }
+
         if (code) {
-          const exchanged = await supabase.auth.exchangeCodeForSession(code);
-          if (exchanged.error) throw exchanged.error;
-          window.history.replaceState({}, "", window.location.pathname);
-          if (active) setVerified(Boolean(exchanged.data.user));
+          // Keep existing PKCE links working when the verifier is available.
+          verification.current ??= (async () => {
+            const { data, error: exchangeError } =
+              await supabase.auth.exchangeCodeForSession(code);
+            if (exchangeError || !data.user || !data.session) {
+              throw new Error(INVALID_LINK_MESSAGE);
+            }
+            return data.user.id;
+          })();
+          const userId = await verification.current;
+          window.history.replaceState(window.history.state, "", window.location.pathname);
+          if (active) setRecoveryUserId(userId);
           return;
         }
 
-        // The browser client may have already consumed the recovery callback.
-        // Only an authenticated user can update their own password.
-        const existing = await supabase.auth.getUser();
-        if (existing.data.user) {
-          if (active) setVerified(true);
+        // Legacy implicit recovery links are accepted only when Supabase
+        // itself emits PASSWORD_RECOVERY; an ordinary stored login is NOT enough.
+        if (fragment.get("type") === "recovery") {
+          const { error: initializationError } = await supabase.auth.initialize();
+          if (initializationError || !recoveryEventUserId) {
+            throw new Error(INVALID_LINK_MESSAGE);
+          }
           return;
         }
 
-        if (active) {
-          setError("This recovery link is missing, expired or already used. Request a new link.");
-        }
+        if (!recoveryEventUserId) throw new Error(INVALID_LINK_MESSAGE);
       } catch {
         if (active) {
-          setError("We couldn't verify your recovery link. Request a new one in this browser.");
+          setRecoveryUserId(null);
+          setError(INVALID_LINK_MESSAGE);
         }
       } finally {
         if (active) setChecking(false);
@@ -59,12 +101,15 @@ export default function ResetPasswordPage() {
     }
 
     void initialize();
-    return () => { active = false; subscription.unsubscribe(); };
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!verified || busy) return;
+    if (!recoveryUserId || busy) return;
     if (password.length < 12) {
       setError("Use at least 12 characters for your new password.");
       return;
@@ -76,15 +121,26 @@ export default function ResetPasswordPage() {
 
     setBusy(true);
     setError(null);
-    const result = await supabase.auth.updateUser({ password });
-    setBusy(false);
-    if (result.error) {
-      setError("The password couldn't be changed. Try a new reset link or a different password.");
-      return;
+    try {
+      // Prevent a stale or replaced browser session from updating a different
+      // signed-in account than the one authenticated by the recovery token.
+      const { data, error: userError } = await supabase.auth.getUser();
+      if (userError || !data.user || data.user.id !== recoveryUserId) {
+        setRecoveryUserId(null);
+        throw new Error(INVALID_LINK_MESSAGE);
+      }
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) throw updateError;
+      // End the recovery session so the user must sign in with the new password.
+      await supabase.auth.signOut({ scope: "local" });
+      setPassword("");
+      setConfirmation("");
+      setSaved(true);
+    } catch {
+      setError("The password could not be changed. Please use a fresh recovery link after the issue is resolved.");
+    } finally {
+      setBusy(false);
     }
-    setPassword("");
-    setConfirmation("");
-    setSaved(true);
   }
 
   return (
@@ -98,7 +154,7 @@ export default function ResetPasswordPage() {
         {saved ? (
           <>
             <p role="status" className="mt-4 text-sm leading-6 text-slate-600">
-              Your password has been changed. Your existing account and permissions remain the same.
+              Your password has been changed. Sign in with your existing email and the new password.
             </p>
             <Link href="/auth/login" className="mt-6 inline-flex min-h-11 items-center rounded-lg bg-indigo-700 px-5 py-3 text-sm font-semibold text-white">
               Return to sign in
@@ -111,18 +167,18 @@ export default function ResetPasswordPage() {
             </p>
             {checking ? (
               <p role="status" className="mt-6 text-sm text-slate-600">Checking recovery link…</p>
-            ) : verified ? (
+            ) : recoveryUserId ? (
               <form onSubmit={submit} className="mt-6 space-y-4">
                 <div>
                   <label htmlFor="new-password" className="mb-1 block text-sm font-medium text-slate-800">New password</label>
                   <input id="new-password" type="password" autoComplete="new-password" required minLength={12}
-                    value={password} onChange={(e) => setPassword(e.target.value)}
+                    value={password} onChange={(event) => setPassword(event.target.value)}
                     className="min-h-12 w-full rounded-lg border border-slate-300 px-3 focus-visible:outline-2 focus-visible:outline-indigo-600" />
                 </div>
                 <div>
                   <label htmlFor="confirm-password" className="mb-1 block text-sm font-medium text-slate-800">Confirm new password</label>
                   <input id="confirm-password" type="password" autoComplete="new-password" required minLength={12}
-                    value={confirmation} onChange={(e) => setConfirmation(e.target.value)}
+                    value={confirmation} onChange={(event) => setConfirmation(event.target.value)}
                     className="min-h-12 w-full rounded-lg border border-slate-300 px-3 focus-visible:outline-2 focus-visible:outline-indigo-600" />
                 </div>
                 {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
