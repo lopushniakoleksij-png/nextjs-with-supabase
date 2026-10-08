@@ -10,10 +10,10 @@ This branch adds a **token-hash recovery** option. Verification of a one-time `r
 
 1. Confirm the deployed application is built from this GitHub repository. The current Vercel connector cannot read the team's project deployment/environment (403), so this is **not yet confirmed**.
 2. In the **correct** Supabase project, go to **Authentication → URL Configuration** and set the *Site URL* to the permanent production origin. Review allowed redirect URLs, removing old preview origins when safe.
-3. In **Authentication → Email Templates → Reset Password**, preserve the email design but replace the reset link with the following token-hash form (using the actual canonical origin from Site URL):
+3. In **Authentication → Email Templates → Reset Password**, preserve the email design but replace the reset link with the following token-hash form (using the verified canonical production origin (the HTML above uses the correct URL)):
 
    ```html
-   <a href="{{ .SiteURL }}/auth/reset-password?token_hash={{ .TokenHash }}&type=recovery">
+   <a href="https://nextjs-with-supabase-neon-ten.vercel.app/auth/reset-password?token_hash={{ .TokenHash }}&amp;type=recovery">
      Reset Password
    </a>
    ```
