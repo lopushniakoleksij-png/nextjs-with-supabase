@@ -5,7 +5,6 @@ import {
   BadgePercent,
   Bookmark,
   Compass,
-  ShieldCheck,
   Store,
   UserRound,
 } from "lucide-react";
