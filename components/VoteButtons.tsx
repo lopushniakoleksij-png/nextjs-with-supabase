@@ -70,7 +70,7 @@ export default function VoteButtons({ promoId }: { promoId: string }) {
           disabled={loading}
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#fff0ed] px-3 text-xs font-bold text-[#a4473c] transition hover:bg-[#ffe6e0] disabled:opacity-50"
         >
-          <ThumbsDown size={16} aria-hidden="true" /> Didn't work
+          <ThumbsDown size={16} aria-hidden="true" /> Didn&apos;t work
         </button>
       </div>
       {message && <p role="status" aria-live="polite" className="mt-3 text-xs font-medium leading-5 text-slate-600">{message}</p>}
