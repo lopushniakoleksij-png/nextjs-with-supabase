@@ -1,153 +1,146 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { AlertCircle, CheckCircle2 } from "lucide-react"
+export default function ResetPasswordPage() {
+  const supabase = useMemo(() => createClient(), []);
+  const [verified, setVerified] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [password, setPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export default function SignUpPage() {
-  const supabase = createClient()
-  const router = useRouter()
+  useEffect(() => {
+    let active = true;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
+      if ((event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") && session) {
+        setVerified(true);
+        setChecking(false);
+        setError(null);
+      }
+    });
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+    async function initialize() {
+      try {
+        // Exchange a one-time recovery code first. An existing browser login
+        // must not override the identity carried by this recovery link.
+        const code = new URLSearchParams(window.location.search).get("code");
+        if (code) {
+          const exchanged = await supabase.auth.exchangeCodeForSession(code);
+          if (exchanged.error) throw exchanged.error;
+          window.history.replaceState({}, "", window.location.pathname);
+          if (active) setVerified(Boolean(exchanged.data.user));
+          return;
+        }
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+        // The browser client may have already consumed the recovery callback.
+        // Only an authenticated user can update their own password.
+        const existing = await supabase.auth.getUser();
+        if (existing.data.user) {
+          if (active) setVerified(true);
+          return;
+        }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.")
-      setLoading(false)
-      return
+        if (active) {
+          setError("This recovery link is missing, expired or already used. Request a new link.");
+        }
+      } catch {
+        if (active) {
+          setError("We couldn't verify your recovery link. Request a new one in this browser.");
+        }
+      } finally {
+        if (active) setChecking(false);
+      }
     }
 
-    const redirectUrl = `${window.location.origin}/auth/callback`
+    void initialize();
+    return () => { active = false; subscription.unsubscribe(); };
+  }, [supabase]);
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
-    })
-
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-      return
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!verified || busy) return;
+    if (password.length < 12) {
+      setError("Use at least 12 characters for your new password.");
+      return;
+    }
+    if (password !== confirmation) {
+      setError("The passwords do not match.");
+      return;
     }
 
-    if (data.user && !data.session) {
-      setSuccess(true)
-    } else {
-      router.push("/dashboard")
+    setBusy(true);
+    setError(null);
+    const result = await supabase.auth.updateUser({ password });
+    setBusy(false);
+    if (result.error) {
+      setError("The password couldn't be changed. Try a new reset link or a different password.");
+      return;
     }
-
-    setLoading(false)
-  }
-
-  if (success) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-        <Card className="w-full max-w-sm">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
-            </div>
-            <CardTitle>Check your email</CardTitle>
-            <CardDescription>
-              We sent a confirmation link to <strong>{email}</strong>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center text-sm text-muted-foreground">
-            Click the link to activate your account.
-            <div className="mt-4">
-              <Link href="/auth/login" className="underline">
-                Back to sign in
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    setPassword("");
+    setConfirmation("");
+    setSaved(true);
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Create your account</CardTitle>
-          <CardDescription>
-            Access manually verified promo codes from trusted UK brands
-          </CardDescription>
-        </CardHeader>
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-5 py-12">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-wider text-indigo-700">Promo Code 4 account recovery</p>
+        <h1 className="mt-3 text-2xl font-bold text-slate-900">
+          {saved ? "Password updated" : "Set a new password"}
+        </h1>
 
-        <CardContent>
-          <form onSubmit={handleSignUp} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Minimum 8 characters
-              </p>
-            </div>
-
-            {error && (
-              <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                <AlertCircle className="mt-0.5 h-4 w-4" />
-                {error}
+        {saved ? (
+          <>
+            <p role="status" className="mt-4 text-sm leading-6 text-slate-600">
+              Your password has been changed. Your existing account and permissions remain the same.
+            </p>
+            <Link href="/auth/login" className="mt-6 inline-flex min-h-11 items-center rounded-lg bg-indigo-700 px-5 py-3 text-sm font-semibold text-white">
+              Return to sign in
+            </Link>
+          </>
+        ) : (
+          <>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              Follow the recovery link sent to your registered email, then choose a new password.
+            </p>
+            {checking ? (
+              <p role="status" className="mt-6 text-sm text-slate-600">Checking recovery link…</p>
+            ) : verified ? (
+              <form onSubmit={submit} className="mt-6 space-y-4">
+                <div>
+                  <label htmlFor="new-password" className="mb-1 block text-sm font-medium text-slate-800">New password</label>
+                  <input id="new-password" type="password" autoComplete="new-password" required minLength={12}
+                    value={password} onChange={(e) => setPassword(e.target.value)}
+                    className="min-h-12 w-full rounded-lg border border-slate-300 px-3 focus-visible:outline-2 focus-visible:outline-indigo-600" />
+                </div>
+                <div>
+                  <label htmlFor="confirm-password" className="mb-1 block text-sm font-medium text-slate-800">Confirm new password</label>
+                  <input id="confirm-password" type="password" autoComplete="new-password" required minLength={12}
+                    value={confirmation} onChange={(e) => setConfirmation(e.target.value)}
+                    className="min-h-12 w-full rounded-lg border border-slate-300 px-3 focus-visible:outline-2 focus-visible:outline-indigo-600" />
+                </div>
+                {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+                <button type="submit" disabled={busy} className="min-h-12 w-full rounded-lg bg-indigo-700 px-4 py-3 font-semibold text-white disabled:opacity-50">
+                  {busy ? "Updating…" : "Update password"}
+                </button>
+              </form>
+            ) : (
+              <div className="mt-6">
+                {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+                <Link href="/auth/forgot-password" className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-indigo-700 px-5 py-3 text-sm font-semibold text-white">
+                  Request a new reset link
+                </Link>
               </div>
             )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Create account"}
-            </Button>
-
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="underline">
-                Sign in
-              </Link>
-            </p>
-
-            <div className="border-t pt-4 text-center text-xs text-muted-foreground">
-              <p>We never share your email.</p>
-              <p>No spam. Only verified deals.</p>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
-  )
+          </>
+        )}
+      </div>
+    </main>
+  );
 }

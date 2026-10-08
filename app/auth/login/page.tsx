@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -85,6 +86,9 @@ export default function LoginPage() {
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
+        <Link href="/auth/forgot-password" className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-indigo-700 underline">
+          Forgot your password?
+        </Link>
       </div>
     </div>
   );
