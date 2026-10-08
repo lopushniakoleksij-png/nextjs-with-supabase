@@ -27,20 +27,22 @@ export default function ResetPasswordPage() {
 
     async function initialize() {
       try {
-        // Browser clients may already have consumed the recovery callback.
-        const first = await supabase.auth.getUser();
-        if (first.data.user) {
-          if (active) setVerified(true);
-          return;
-        }
-
-        // A PKCE recovery link can return a one-time code to this page.
+        // Exchange a one-time recovery code first. An existing browser login
+        // must not override the identity carried by this recovery link.
         const code = new URLSearchParams(window.location.search).get("code");
         if (code) {
           const exchanged = await supabase.auth.exchangeCodeForSession(code);
           if (exchanged.error) throw exchanged.error;
           window.history.replaceState({}, "", window.location.pathname);
           if (active) setVerified(Boolean(exchanged.data.user));
+          return;
+        }
+
+        // The browser client may have already consumed the recovery callback.
+        // Only an authenticated user can update their own password.
+        const existing = await supabase.auth.getUser();
+        if (existing.data.user) {
+          if (active) setVerified(true);
           return;
         }
 
