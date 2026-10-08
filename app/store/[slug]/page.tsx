@@ -35,7 +35,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const name = slug.replace(/-/g, " ");
   return {
-    title: `${name} Promo Codes & Deals | Promo Code 4`,
+    title: `${name} Promo Codes & Deals`,
     description: `Browse active, approved promo code listings for ${name} and review community feedback.`,
   };
 }
