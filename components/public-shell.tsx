@@ -1,13 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BadgePercent,
-  Bookmark,
-  Compass,
-  Store,
-  UserRound,
-} from "lucide-react";
+import { ArrowRight, BadgePercent } from "lucide-react";
+import MobileNavigation from "@/components/mobile-navigation";
 
 export function SiteHeader() {
   return (
@@ -51,25 +45,6 @@ export function SiteFooter() {
         <Link href="/about" className="shrink-0 text-xs font-semibold hover:text-[#6844db]">About &amp; disclosures</Link>
       </div>
     </footer>
-  );
-}
-
-export function MobileNavigation() {
-  return (
-    <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_28px_rgba(15,23,42,0.06)] backdrop-blur md:hidden">
-      <Link href="/#offers" className="flex min-h-[68px] flex-col items-center justify-center gap-1 text-[#5d3dc8] focus-visible:outline-2 focus-visible:outline-[#7055df]">
-        <Compass size={21} aria-hidden="true" /><span className="text-[11px] font-bold">Deals</span>
-      </Link>
-      <Link href="/stores" className="flex min-h-[68px] flex-col items-center justify-center gap-1 text-slate-600 focus-visible:outline-2 focus-visible:outline-[#7055df]">
-        <Store size={21} aria-hidden="true"/><span className="text-[11px] font-semibold">Stores</span>
-      </Link>
-      <Link href="/saved" className="flex min-h-[68px] flex-col items-center justify-center gap-1 text-slate-600 focus-visible:outline-2 focus-visible:outline-[#7055df]">
-        <Bookmark size={21} aria-hidden="true"/><span className="text-[11px] font-semibold">Saved</span>
-      </Link>
-      <Link href="/auth/login" className="flex min-h-[68px] flex-col items-center justify-center gap-1 text-slate-600 focus-visible:outline-2 focus-visible:outline-[#7055df]">
-        <UserRound size={21} aria-hidden="true"/><span className="text-[11px] font-semibold">Account</span>
-      </Link>
-    </nav>
   );
 }
 
