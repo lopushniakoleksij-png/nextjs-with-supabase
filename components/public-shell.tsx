@@ -47,7 +47,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col justify-between gap-5 px-5 py-9 text-sm text-slate-500 sm:flex-row sm:items-center sm:px-8">
         <Link href="/" className="font-extrabold text-[#211b57]">promocode4</Link>
         <p className="max-w-lg text-xs leading-5">
-          Offers and retailer terms may change. We may receive a commission from eligible links; it never changes your price.
+          Offers and retailer terms may change. Some retailer links may earn us a commission. Always check the retailer’s final price and terms.
         </p>
         <Link href="/about" className="shrink-0 text-xs font-semibold hover:text-[#6844db]">About &amp; disclosures</Link>
       </div>
