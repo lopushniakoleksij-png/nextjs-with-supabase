@@ -6,7 +6,7 @@ import type { PromoItem } from "@/components/deal-discovery";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Your Saved Deals | Promo Code 4",
+  title: "Your Saved Deals",
   description: "Revisit live promo codes saved on this device.",
 };
 
