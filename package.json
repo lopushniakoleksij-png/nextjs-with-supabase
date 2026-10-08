@@ -7,7 +7,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "smoke:public": "node scripts/smoke-public.mjs"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",
