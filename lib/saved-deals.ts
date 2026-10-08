@@ -12,9 +12,9 @@ export function readSavedIds(): string[] {
     if (!raw) return [];
     const data: unknown = JSON.parse(raw);
     if (!Array.isArray(data)) return [];
-    return data
-      .filter((id): id is string => typeof id === "string" && UUID.test(id))
-      .slice(0, MAX_IDS);
+    return Array.from(new Set(
+      data.filter((id): id is string => typeof id === "string" && UUID.test(id)),
+    )).slice(0, MAX_IDS);
   } catch {
     return [];
   }
