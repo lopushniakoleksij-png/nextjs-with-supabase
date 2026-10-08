@@ -65,7 +65,7 @@ export default function StoreDirectory({ stores }: { stores: PublicStore[] }) {
           </h2>
           <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
             {stores.length === 0
-              ? "Verified store listings will appear as merchants are onboarded. We never invent retailers to fill a page."
+              ? "Real store listings will appear as merchants are onboarded. We never invent retailers to fill a page."
               : "Try a different store name or clear your search."}
           </p>
           {stores.length > 0 && (
