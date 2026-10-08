@@ -9,7 +9,6 @@ import {
   CircleX,
   Search,
   SlidersHorizontal,
-  Sparkles,
   TicketPercent,
 } from "lucide-react";
 import UseCodeButton from "@/components/UseCodeButton";
@@ -24,6 +23,39 @@ export default function DealDiscovery({ promos }: { promos: PromoItem[] }) {
   const term = search.trim();
 
   const results = useMemo(() => findPromos(promos, term, sort), [promos, term, sort]);
+
+  // Suppress search and sort until there is inventory to use them with.
+  // A compact, honest launch state avoids a broken-looking empty catalogue.
+  if (promos.length === 0) {
+    return (
+      <div
+        data-testid="no-live-offers"
+        className="flex flex-col gap-5 rounded-[24px] border border-[#dedaf4] bg-white p-5 shadow-[0_10px_30px_rgba(16,24,43,0.035)] sm:flex-row sm:items-center sm:p-8"
+      >
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[17px] bg-[#eeebff] text-[#6844da]">
+          <TicketPercent size={29} aria-hidden="true" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#6944d5]">
+            Current availability
+          </p>
+          <h3 className="mt-2 text-xl font-black tracking-[-0.035em] text-slate-900 sm:text-2xl">
+            No promo codes are live yet.
+          </h3>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600">
+            We are preparing our first UK retailer listings. We will only publish active,
+            approved offers — not placeholder discounts.
+          </p>
+          <Link
+            href="/about"
+            className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#211b57] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#46368f]"
+          >
+            How the platform works <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -78,27 +110,13 @@ export default function DealDiscovery({ promos }: { promos: PromoItem[] }) {
             <TicketPercent size={38} strokeWidth={1.75} aria-hidden="true" />
             <span className="absolute -right-2 -top-2 grid h-8 w-8 place-items-center rounded-full bg-[#c9fa7a] text-[#1c2250]"><Sparkles size={16} aria-hidden="true" /></span>
           </div>
-          {promos.length === 0 ? (
-            <>
-              <span className="mt-7 rounded-full bg-[#f1efff] px-3 py-1.5 text-xs font-extrabold text-[#6244ca]">COLLECTION IN PROGRESS</span>
-              <h3 className="mt-4 max-w-lg text-2xl font-black tracking-[-0.04em] sm:text-3xl">Great offers are worth waiting for.</h3>
-              <p className="mt-3 max-w-md text-sm leading-7 text-slate-500 sm:text-base">
-                There are no approved promo codes live yet. We&apos;ll show real offers here as soon as they are added.
-              </p>
-              <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <Link href="/about" className="inline-flex items-center gap-2 rounded-full bg-[#211b57] px-5 py-3 text-sm font-bold text-white hover:bg-[#42338d]">
-                  See how it works <ArrowRight size={16} aria-hidden="true" />
-                </Link>
-                <Link href="/auth/sign-up" className="inline-flex items-center rounded-full border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Create account</Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <h3 className="mt-7 text-2xl font-black tracking-tight">No matching deals found.</h3>
-              <p className="mt-3 max-w-md text-sm leading-7 text-slate-500">Try a different brand or search term to see available offers.</p>
-              <button type="button" onClick={() => setSearch("")} className="mt-6 rounded-full bg-[#211b57] px-5 py-3 text-sm font-bold text-white hover:bg-[#42338d]">Show all offers</button>
-            </>
-          )}
+          <h3 className="mt-7 text-xl font-black tracking-tight">No matching deals found.</h3>
+          <p className="mt-3 max-w-md text-sm leading-7 text-slate-500">
+            Try a different brand or search term to see available offers.
+          </p>
+          <button type="button" onClick={() => setSearch("")} className="mt-6 min-h-11 rounded-full bg-[#211b57] px-5 py-3 text-sm font-bold text-white hover:bg-[#42338d]">
+            Show all offers
+          </button>
         </div>
       ) : (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
