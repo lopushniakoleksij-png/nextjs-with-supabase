@@ -1,20 +1,11 @@
 import Link from "next/link";
 import {
-  ArrowRight,
-  BadgeCheck,
-  BadgePercent,
-  CheckCircle2,
-  ChevronRight,
-  ClipboardCheck,
-  Compass,
-  MousePointerClick,
-  Search,
-  ShieldCheck,
-  TicketPercent,
-  UserRound,
+  ArrowRight, BadgeCheck, CheckCircle2, ChevronRight,
+  ClipboardCheck, MousePointerClick, Search, ShieldCheck, TicketPercent,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import DealDiscovery, { type PromoItem } from "@/components/deal-discovery";
+import PublicShell from "@/components/public-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +15,7 @@ export default async function HomePage() {
 
   const { data, error } = await supabase
     .from("promo_codes")
-    .select(
-      "id, code, title, description, expires_at, created_at, worked_count, failed_count, click_count, stores(name, slug)"
-    )
+    .select("id, code, title, description, expires_at, created_at, worked_count, failed_count, click_count, stores(name, slug)")
     .eq("approved", true)
     .eq("is_active", true)
     .or("expires_at.is.null,expires_at.gt." + now)
@@ -39,33 +28,7 @@ export default async function HomePage() {
   const promos = (data || []) as PromoItem[];
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] pb-20 text-[#10182b] md:pb-0">
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
-          <Link href="/" className="inline-flex items-center gap-2.5" aria-label="Promo Code 4 homepage">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#211b57] text-[#c9fa7a]">
-              <BadgePercent size={24} strokeWidth={2.5} aria-hidden="true" />
-            </span>
-            <span className="text-xl font-black tracking-[-0.065em]">
-              promo<span className="text-[#6944ea]">code</span><span className="ml-0.5 text-[#10182b]">4</span>
-            </span>
-          </Link>
-          <nav aria-label="Main navigation" className="hidden items-center gap-8 text-sm font-semibold text-slate-600 md:flex">
-            <a href="#offers" className="transition hover:text-[#5937d5]">Explore deals</a>
-            <a href="#how-it-works" className="transition hover:text-[#5937d5]">How it works</a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Link href="/auth/login" className="hidden rounded-full px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 sm:inline-flex">
-              Log in
-            </Link>
-            <Link href="/auth/sign-up" className="inline-flex items-center gap-2 rounded-full bg-[#211b57] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#3e2f91]">
-              Get started <ArrowRight size={15} aria-hidden="true" />
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <main>
+    <PublicShell>
         <section className="relative overflow-hidden bg-[#11143a] text-white">
           <div aria-hidden="true" className="pointer-events-none absolute -right-36 -top-48 h-[520px] w-[520px] rounded-full bg-[#6b46d9]/35 blur-[80px]" />
           <div aria-hidden="true" className="pointer-events-none absolute -bottom-56 -left-32 h-[390px] w-[390px] rounded-full bg-[#4837a8]/30 blur-[70px]" />
@@ -189,21 +152,6 @@ export default async function HomePage() {
             </Link>
           </div>
         </section>
-      </main>
-
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-5 px-5 py-8 text-xs text-slate-500 sm:flex-row sm:items-center sm:px-8">
-          <span className="font-extrabold text-[#211b57]">promocode4</span>
-          <p>Codes and availability may change. Check terms with the retailer before purchase.</p>
-          <Link href="/auth/login" className="font-semibold hover:text-[#6844db]">Account</Link>
-        </div>
-      </footer>
-
-      <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-40 flex h-[72px] items-center justify-around border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_28px_rgba(15,23,42,0.06)] backdrop-blur md:hidden">
-        <a href="#offers" className="flex min-w-[80px] flex-col items-center gap-1 text-[#5d3dc8]"><Compass size={21} aria-hidden="true" /><span className="text-[11px] font-bold">Explore</span></a>
-        <a href="#how-it-works" className="flex min-w-[80px] flex-col items-center gap-1 text-slate-500"><BadgeCheck size={21} aria-hidden="true"/><span className="text-[11px] font-semibold">How it works</span></a>
-        <Link href="/auth/login" className="flex min-w-[80px] flex-col items-center gap-1 text-slate-500"><UserRound size={21} aria-hidden="true"/><span className="text-[11px] font-semibold">Account</span></Link>
-      </nav>
-    </div>
+    </PublicShell>
   );
 }
