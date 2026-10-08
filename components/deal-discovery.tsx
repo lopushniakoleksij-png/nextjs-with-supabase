@@ -15,64 +15,15 @@ import {
 import UseCodeButton from "@/components/UseCodeButton";
 import SaveDealButton from "@/components/save-deal-button";
 
-export type PromoItem = {
-  id: string;
-  code: string;
-  title: string | null;
-  description: string | null;
-  expires_at: string | null;
-  created_at: string | null;
-  worked_count: number | null;
-  failed_count: number | null;
-  click_count: number | null;
-  stores:
-    | { name: string; slug: string }
-    | { name: string; slug: string }[]
-    | null;
-};
-
-type SortOrder = "newest" | "helpful" | "expiring";
-
-function storeFor(promo: PromoItem) {
-  return Array.isArray(promo.stores) ? promo.stores[0] : promo.stores;
-}
-
-function votesFor(promo: PromoItem) {
-  return (promo.worked_count || 0) + (promo.failed_count || 0);
-}
+import { findPromos, promoStore, voteCounts, type SortOrder, type PromoItem } from "@/lib/promo-discovery";
+export type { PromoItem } from "@/lib/promo-discovery";
 
 export default function DealDiscovery({ promos }: { promos: PromoItem[] }) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOrder>("newest");
-  const term = search.trim().toLowerCase();
+  const term = search.trim();
 
-  const results = useMemo(() => {
-    const matching = promos.filter((promo) => {
-      const store = storeFor(promo);
-      return [
-        promo.code,
-        promo.title || "",
-        promo.description || "",
-        store?.name || "",
-      ].some((field) => field.toLowerCase().includes(term));
-    });
-
-    return matching.sort((a, b) => {
-      if (sort === "helpful") {
-        const aTotal = votesFor(a);
-        const bTotal = votesFor(b);
-        const aRate = aTotal ? (a.worked_count || 0) / aTotal : -1;
-        const bRate = bTotal ? (b.worked_count || 0) / bTotal : -1;
-        return bRate - aRate || bTotal - aTotal;
-      }
-      if (sort === "expiring") {
-        const aExpiry = a.expires_at ? new Date(a.expires_at).getTime() : Infinity;
-        const bExpiry = b.expires_at ? new Date(b.expires_at).getTime() : Infinity;
-        return aExpiry - bExpiry;
-      }
-      return (b.created_at || "").localeCompare(a.created_at || "");
-    });
-  }, [promos, term, sort]);
+  const results = useMemo(() => findPromos(promos, term, sort), [promos, term, sort]);
 
   return (
     <div>
@@ -152,8 +103,8 @@ export default function DealDiscovery({ promos }: { promos: PromoItem[] }) {
       ) : (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((promo) => {
-            const store = storeFor(promo);
-            const votes = votesFor(promo);
+            const store = promoStore(promo);
+            const votes = voteCounts(promo).total;
             const rate = votes > 0 ? Math.round(((promo.worked_count || 0) / votes) * 100) : null;
             return (
               <article key={promo.id} className="flex min-w-0 flex-col rounded-[25px] border border-slate-200 bg-white p-5 shadow-[0_10px_35px_rgba(15,23,42,0.035)]">
