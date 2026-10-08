@@ -12,12 +12,12 @@ import {
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
-        <Link href="/" className="inline-flex items-center gap-2.5" aria-label="Promo Code 4 homepage">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#211b57] text-[#c9fa7a]">
+      <div className="mx-auto flex h-[64px] max-w-6xl items-center justify-between gap-2 px-4 sm:h-[68px] sm:gap-4 sm:px-8">
+        <Link href="/" className="inline-flex min-w-0 items-center gap-2 sm:gap-2.5" aria-label="Promo Code 4 homepage">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#211b57] text-[#c9fa7a] sm:h-10 sm:w-10 sm:rounded-2xl">
             <BadgePercent size={23} aria-hidden="true" />
           </span>
-          <span className="text-xl font-black tracking-[-0.065em]">
+          <span className="whitespace-nowrap text-lg font-black tracking-[-0.065em] sm:text-xl">
             promo<span className="text-[#6944ea]">code</span><span className="ml-0.5 text-[#10182b]">4</span>
           </span>
         </Link>
@@ -31,8 +31,8 @@ export function SiteHeader() {
           <Link href="/auth/login" className="hidden rounded-full px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 sm:inline-flex">
             Log in
           </Link>
-          <Link href="/auth/sign-up" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#211b57] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#3e2f91]">
-            Get started <ArrowRight size={16} aria-hidden="true" />
+          <Link href="/auth/sign-up" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#211b57] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#3e2f91] sm:gap-2">
+            <span className="sm:hidden">Join</span><span className="hidden sm:inline">Get started</span> <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </div>
       </div>
