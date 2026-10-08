@@ -85,7 +85,7 @@ export default function DealDiscovery({ promos }: { promos: PromoItem[] }) {
             onChange={(event) => setSearch(event.target.value)}
             type="search"
             placeholder="Search brands, deals or codes..."
-            className="h-13 w-full rounded-2xl border border-slate-200 bg-[#f7f7fc] py-3.5 pl-12 pr-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#7656da] focus:ring-2 focus:ring-[#7656da]/20"
+            className="h-14 w-full rounded-2xl border border-slate-200 bg-[#f7f7fc] py-3.5 pl-12 pr-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#7656da] focus:ring-2 focus:ring-[#7656da]/20"
           />
         </div>
         <div className="relative flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 sm:min-w-[208px]">
