@@ -33,13 +33,13 @@ export default async function HomePage() {
           <div aria-hidden="true" className="pointer-events-none absolute -right-36 -top-48 h-[520px] w-[520px] rounded-full bg-[#6b46d9]/35 blur-[80px]" />
           <div aria-hidden="true" className="pointer-events-none absolute -bottom-56 -left-32 h-[390px] w-[390px] rounded-full bg-[#4837a8]/30 blur-[70px]" />
 
-          <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pb-16 pt-14 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-24">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-7 px-5 pb-11 pt-10 sm:px-8 sm:pb-20 sm:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:py-24">
             <div className="max-w-[610px]">
               <span className="inline-flex items-center gap-2 rounded-full border border-[#aeb1ee]/25 bg-white/10 px-3.5 py-2 text-xs font-bold tracking-wide text-[#d7d5ff]">
                 <span className="h-2 w-2 rounded-full bg-[#c9fa7a]" />
                 MADE FOR SMARTER UK SHOPPING
               </span>
-              <h1 className="mt-7 text-[clamp(2.65rem,6vw,5rem)] font-black leading-[1.04] tracking-[-0.06em]">
+              <h1 className="mt-7 text-[clamp(2.35rem,6vw,5rem)] font-black leading-[1.04] tracking-[-0.06em]">
                 Good deals.
                 <span className="block text-[#c9fa7a]">Less guesswork.</span>
               </h1>
@@ -60,7 +60,7 @@ export default async function HomePage() {
               </div>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[430px] lg:mx-0" aria-label="How Promo Code 4 works">
+            <div className="relative mx-auto hidden w-full max-w-[430px] lg:mx-0 lg:block" aria-label="How Promo Code 4 works">
               <div className="absolute -right-3 -top-5 rotate-6 rounded-2xl bg-[#c9fa7a] px-5 py-3 text-base font-black text-[#171c31] shadow-lg sm:right-0">
                 SAVE SMARTER ✳
               </div>
