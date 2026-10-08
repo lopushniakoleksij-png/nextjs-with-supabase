@@ -4,7 +4,7 @@ import { ArrowRight, BadgeCheck, Bookmark, MousePointerClick, ShieldCheck } from
 import PublicShell from "@/components/public-shell";
 
 export const metadata: Metadata = {
-  title: "How Promo Code 4 Works | Transparency & Disclosures",
+  title: "How It Works & Disclosures",
   description: "How our UK promo-code marketplace reviews offers, displays community votes and handles affiliate links.",
 };
 
