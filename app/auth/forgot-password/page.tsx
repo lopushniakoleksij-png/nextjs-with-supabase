@@ -10,10 +10,11 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
 
   async function requestReset(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (loading) return;
+    if (loading || rateLimited) return;
     setError(null);
     setLoading(true);
 
@@ -24,7 +25,16 @@ export default function ForgotPasswordPage() {
         redirectTo: window.location.origin + "/auth/reset-password",
       });
       if (authError) {
-        setError("We could not send the recovery email. Try again later.");
+        if (authError.code === "over_email_send_rate_limit" || authError.status === 429) {
+          // Supabase's default mailer is project-limited. Do not encourage
+          // hammering the endpoint or weaken auth to work around the limit.
+          setRateLimited(true);
+          setError(
+            "Too many recovery emails have been requested. Check your Inbox and Spam for an earlier reset email. Wait at least an hour before returning to request another link."
+          );
+        } else {
+          setError("We could not send the recovery email. Please try again later.");
+        }
       } else {
         setSuccess(true);
       }
@@ -47,7 +57,7 @@ export default function ForgotPasswordPage() {
         ) : (
           <>
             <p className="mt-4 text-sm leading-6 text-slate-600">
-              Enter your existing account email. We will send a link to change your password without creating a new account.
+              Enter your existing account email. We will send a link to change your password without creating a new account. If you requested a link already, check Inbox and Spam first.
             </p>
             <form onSubmit={requestReset} className="mt-6 space-y-4">
               <div>
@@ -64,8 +74,8 @@ export default function ForgotPasswordPage() {
                 />
               </div>
               {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-              <button type="submit" disabled={loading} className="min-h-12 w-full rounded-lg bg-indigo-700 px-4 py-3 font-semibold text-white disabled:opacity-50">
-                {loading ? "Sending…" : "Send password reset link"}
+              <button type="submit" disabled={loading || rateLimited} className="min-h-12 w-full rounded-lg bg-indigo-700 px-4 py-3 font-semibold text-white disabled:opacity-50">
+                {loading ? "Sending…" : rateLimited ? "Email sending temporarily limited" : "Send password reset link"}
               </button>
             </form>
           </>
