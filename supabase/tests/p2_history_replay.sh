@@ -29,5 +29,6 @@ do
 done
 
 psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_disabled_store_visibility.sql
+psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_history_auth_fixture.sql
 psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_lifecycle_flow.sql
 echo "P2 chronological schema replay and role tests: PASS"
