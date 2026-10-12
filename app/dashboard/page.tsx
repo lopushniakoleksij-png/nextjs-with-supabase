@@ -50,25 +50,25 @@ export default async function DashboardPage() {
   const promoCodes = (data || []) as PromoRow[];
 
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-white p-4 rounded shadow">
+    <div className="min-w-0 space-y-6">
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p>Total</p>
-          <p className="text-xl font-bold">{totalCount || 0}</p>
+          <p className="mt-1 text-2xl font-bold tabular-nums">{totalCount || 0}</p>
         </div>
 
-        <div className="bg-yellow-50 p-4 rounded shadow">
+        <div className="min-w-0 rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
           <p>Pending</p>
           <p className="text-xl font-bold">{pendingCount || 0}</p>
         </div>
 
-        <div className="bg-green-50 p-4 rounded shadow">
+        <div className="min-w-0 rounded-xl border border-green-200 bg-green-50 p-4 shadow-sm">
           <p>Approved</p>
           <p className="text-xl font-bold">{approvedCount || 0}</p>
         </div>
       </div>
 
-      <h1 className="text-2xl font-bold mb-6">Pending Promo Codes</h1>
+      <h1 className="text-2xl font-bold leading-tight sm:text-3xl">Pending Promo Codes</h1>
 
       {promoCodes.length === 0 ? (
         <p>No pending promo codes.</p>
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
               : promo.stores;
 
             return (
-              <div key={promo.id} className="border p-4 rounded bg-white">
+              <div key={promo.id} className="min-w-0 rounded-xl border border-slate-200 bg-white p-4">
                 <h2 className="font-semibold">
                   {store?.name || store?.slug || "Store"}
                 </h2>
@@ -94,24 +94,24 @@ export default async function DashboardPage() {
                   <p className="text-sm text-gray-600">{promo.description}</p>
                 )}
 
-                <div className="flex gap-2 mt-4">
+                <div className="mt-4 flex flex-wrap gap-2">
                   <form action={approvePromo}>
                     <input type="hidden" name="id" value={promo.id} />
-                    <button className="bg-green-600 text-white px-3 py-1 rounded">
+                    <button className="min-h-11 rounded-lg bg-green-700 px-4 py-2 font-semibold text-white">
                       Approve
                     </button>
                   </form>
 
                   <form action={rejectPromo}>
                     <input type="hidden" name="id" value={promo.id} />
-                    <button className="bg-yellow-500 text-white px-3 py-1 rounded">
+                    <button className="min-h-11 rounded-lg bg-amber-500 px-4 py-2 font-semibold text-slate-950">
                       Reject
                     </button>
                   </form>
 
                   <form action={deletePromo}>
                     <input type="hidden" name="id" value={promo.id} />
-                    <button className="bg-red-600 text-white px-3 py-1 rounded">
+                    <button className="min-h-11 rounded-lg bg-red-700 px-4 py-2 font-semibold text-white">
                       Delete
                     </button>
                   </form>
