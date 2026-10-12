@@ -127,3 +127,28 @@ grant select (id,slug,name,is_active) on public.stores to anon,authenticated;
 grant select (id,store_id,code,title,description,expires_at,approved,is_active,
   click_count,worked_count,failed_count,created_at,updated_at)
   on public.promo_codes to anon,authenticated;
+
+
+-- Fixture admin permissions and insert grants for the isolated P2 lifecycle test.
+create policy "Admins insert stores" on public.stores
+  for insert to authenticated
+  with check (exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'admin'
+  ));
+
+create policy "Admins update stores" on public.stores
+  for update to authenticated
+  using (exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'admin'
+  ))
+  with check (exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'admin'
+  ));
+
+grant insert (name,slug,website_url,affiliate_url,is_active),
+  update (is_active) on public.stores to authenticated;
+grant insert (store_id,code,title,description,destination_url,expires_at,submitted_by),
+  update (approved,is_active) on public.promo_codes to authenticated;
