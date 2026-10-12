@@ -31,4 +31,9 @@ done
 psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_disabled_store_visibility.sql
 psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_history_auth_fixture.sql
 psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_lifecycle_flow.sql
-echo "P2 chronological schema replay and role tests: PASS"
+echo "P2 chronological migration and role tests: PASS"
+
+# Never execute the emergency rollback against a persistent database.
+psql -v ON_ERROR_STOP=1 -f supabase/rollback/20261012230000_p2_restore_prechange.sql
+psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_rollback_verify.sql
+echo "P2 rollback rehearsal and original security grants: PASS"
