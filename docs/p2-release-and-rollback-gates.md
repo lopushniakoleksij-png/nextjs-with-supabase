@@ -19,6 +19,8 @@ Existing R1 source files for `20261006101203` and `20261006101302` differ from t
 - Next.js typecheck/lint/build.
 - Disposable PostgreSQL 17 with synthetic row-level security model, run historical migration + P2 SQL assertions.
 - Disposable PostgREST HTTP tests for anonymous, regular-user, admin, pending, approved, expired and deactivated state transitions.
+- Actual **Next.js 16** server built against a local loopback-only Supabase REST path proxy in GitHub Actions. Test log confirms live homepage HTTP 200, only approved/active/unexpired offers on active stores, store detail 200 vs disabled 404, valid /go merchant redirect vs disabled /go homepage redirect, and immediate removal from all three public routes after store deactivation. No production secrets or Supabase writes.
+- Final verified GitHub run: `38323086109`; application `verify`, database+API+Next.js `p2-database-visibility`, and chronological replay+rollback `p2-history-replay` all **SUCCESS** at commit `7cf8a8e2cdead3866aeb21fc619c138d8e931092`.
 - Chronological migration-history replay in a second disposable PostgreSQL 17 DB: all R1/R2/hotfix SQL in version order, P2 forward migration, RLS and workflow tests, then the guarded emergency rollback and verification.
 - These are **not** tests against live Supabase Auth or the deployed server actions. This distinction remains a release limitation.
 
