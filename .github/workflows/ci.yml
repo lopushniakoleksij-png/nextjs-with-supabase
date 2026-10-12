@@ -79,3 +79,24 @@ jobs:
 
       - name: Test admin to customer promo lifecycle
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_lifecycle_flow.sql
+
+      - name: Seed disposable PostgREST user roles and offer fixtures
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_http_seed.sql
+
+      - name: Start disposable PostgREST API
+        run: |
+          docker run --detach --rm --network host --name p2-postgrest \
+            -e PGRST_DB_URI="postgres://authenticator:p2-local-only@127.0.0.1:5432/p2_visibility_ci" \
+            -e PGRST_DB_SCHEMAS=public \
+            -e PGRST_DB_ANON_ROLE=anon \
+            -e PGRST_JWT_SECRET=super-long-local-p2-only-jwt-test-secret-2026 \
+            -e PGRST_SERVER_PORT=3000 \
+            postgrest/postgrest:v12.2.8
+
+      - name: Test authenticated HTTP lifecycle against disposable PostgREST
+        run: python3 supabase/tests/p2_http_smoke.py
+
+      - name: Stop disposable PostgREST
+        if: always()
+        run: docker rm -f p2-postgrest || true
+
