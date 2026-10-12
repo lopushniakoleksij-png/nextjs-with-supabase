@@ -20,9 +20,10 @@ export default async function HomePage() {
 
   const { data: promoCodes, error } = await supabase
     .from("promo_codes")
-    .select("id, code, title, description, expires_at, stores(name, slug)")
+    .select("id, code, title, description, expires_at, stores!inner(name, slug)")
     .eq("approved", true)
     .eq("is_active", true)
+    .eq("stores.is_active", true)
     .or(`expires_at.is.null,expires_at.gt.${now}`)
     .order("expires_at", { ascending: true, nullsFirst: false });
 

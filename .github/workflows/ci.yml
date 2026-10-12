@@ -37,3 +37,143 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  p2-database-visibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: p2_visibility_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p2_visibility_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: p2_visibility_ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y postgresql-client
+
+      - name: Bootstrap isolated test schema
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_ci_schema.sql
+
+      - name: Apply proposed visibility migration to disposable database
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261012230000_p2_public_promos_require_active_store.sql
+
+      - name: Assert anonymous visibility and click / vote behaviour
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_disabled_store_visibility.sql
+
+      - name: Test admin to customer promo lifecycle
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_lifecycle_flow.sql
+
+      - name: Seed disposable PostgREST user roles and offer fixtures
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p2_http_seed.sql
+
+      - name: Start disposable PostgREST API
+        run: |
+          docker run --detach --rm --network host --name p2-postgrest \
+            -e PGRST_DB_URI="postgres://authenticator:p2-local-only@127.0.0.1:5432/p2_visibility_ci" \
+            -e PGRST_DB_SCHEMAS=public \
+            -e PGRST_DB_ANON_ROLE=anon \
+            -e PGRST_JWT_SECRET=super-long-local-p2-only-jwt-test-secret-2026 \
+            -e PGRST_SERVER_PORT=3000 \
+            postgrest/postgrest:v12.2.8
+
+      - name: Set up Node.js for real Next.js public smoke
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install Next.js dependencies
+        run: npm ci
+
+      - name: Start loopback-only Supabase REST prefix proxy
+        run: |
+          nohup python3 supabase/tests/p2_supabase_rest_proxy.py >/tmp/p2-rest-proxy.log 2>&1 &
+          echo $! >/tmp/p2-rest-proxy.pid
+
+      - name: Generate isolated anonymous JWT for local Next.js
+        run: echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(python3 supabase/tests/p2_next_public_smoke.py --anon-jwt)" >> "$GITHUB_ENV"
+
+      - name: Build Next.js against isolated local PostgREST
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:3001
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3333
+        run: npm run build
+
+      - name: Start Next.js app on loopback
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:3001
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3333
+        run: |
+          nohup npm run start -- --port 3333 >/tmp/p2-next.log 2>&1 &
+          echo $! >/tmp/p2-next.pid
+
+      - name: Verify actual public Next.js homepage and store routes
+        run: python3 supabase/tests/p2_next_public_smoke.py
+
+      - name: Test authenticated HTTP lifecycle against disposable PostgREST
+        run: python3 supabase/tests/p2_http_smoke.py
+
+      - name: Verify website hides offers after store deactivation
+        run: python3 supabase/tests/p2_next_public_smoke.py --after-disable
+
+      - name: Stop isolated Next.js and REST proxy
+        if: always()
+        run: |
+          if test -f /tmp/p2-next.pid; then kill "$(cat /tmp/p2-next.pid)" || true; fi
+          if test -f /tmp/p2-rest-proxy.pid; then kill "$(cat /tmp/p2-rest-proxy.pid)" || true; fi
+
+      - name: Stop disposable PostgREST
+        if: always()
+        run: docker rm -f p2-postgrest || true
+
+
+
+  p2-history-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: p2_history_replay_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p2_history_replay_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: p2_history_replay_ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y postgresql-client
+
+      - name: Replay recovered chronological Supabase SQL history
+        run: bash supabase/tests/p2_history_replay.sh
