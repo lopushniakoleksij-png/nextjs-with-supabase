@@ -21,7 +21,7 @@ export default function Sidebar() {
     return links.map(({ href, label }) => {
       const active =
         href !== "/" &&
-        (pathname === href || pathname.startsWith(`${href}/`));
+        (pathname === href || (href !== "/dashboard" && pathname.startsWith(`${href}/`)));
 
       return (
         <Link
