@@ -31,7 +31,7 @@ export default async function PromoCodesAdminPage() {
   const codes = (data || []) as PromoRow[];
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       {codes.length === 0 ? (
         <p>No promo codes yet.</p>
       ) : (
@@ -42,12 +42,12 @@ export default async function PromoCodesAdminPage() {
 
           return (
             <Card key={promo.id}>
-              <CardContent className="flex items-center justify-between p-4">
+              <CardContent className="flex min-w-0 flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="font-semibold">
+                  <p className="break-all font-semibold">
                     {store?.name || store?.slug || "Store"} · {promo.code}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="break-words text-sm text-muted-foreground">
                     {promo.title || promo.description || "No description"}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -56,14 +56,14 @@ export default async function PromoCodesAdminPage() {
                   </p>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <form
                     action={async () => {
                       "use server";
                       await togglePromoCode(promo.id, promo.is_active);
                     }}
                   >
-                    <Button variant="outline" type="submit">
+                    <Button variant="outline" type="submit" className="min-h-11">
                       {promo.is_active ? "Disable" : "Enable"}
                     </Button>
                   </form>
@@ -74,7 +74,7 @@ export default async function PromoCodesAdminPage() {
                       await deletePromoCode(promo.id);
                     }}
                   >
-                    <Button variant="destructive" type="submit">
+                    <Button variant="destructive" type="submit" className="min-h-11">
                       Delete
                     </Button>
                   </form>
