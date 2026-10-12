@@ -21,15 +21,15 @@ export default async function StoresAdminPage() {
   const stores = (data || []) as StoreRow[];
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="min-w-0 space-y-8">
       <div>
-        <h1 className="text-2xl font-bold mb-4">Stores</h1>
-        <form action={createStore} className="grid gap-3 max-w-xl">
-          <input name="name" placeholder="Store name" required className="border p-2" />
-          <input name="slug" placeholder="store-name" required className="border p-2" />
-          <input name="website_url" type="url" placeholder="https://store.example" className="border p-2" />
-          <input name="affiliate_url" type="url" placeholder="https://affiliate.example/..." className="border p-2" />
-          <button className="bg-black text-white px-4 py-2 rounded w-fit">
+        <h1 className="mb-4 text-2xl font-bold leading-tight sm:text-3xl">Stores</h1>
+        <form action={createStore} className="grid w-full max-w-xl gap-3">
+          <input name="name" placeholder="Store name" required className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2" />
+          <input name="slug" placeholder="store-name" required className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2" />
+          <input name="website_url" type="url" placeholder="https://store.example" className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2" />
+          <input name="affiliate_url" type="url" placeholder="https://affiliate.example/..." className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2" />
+          <button className="min-h-11 w-full rounded-lg bg-slate-900 px-4 py-2 font-semibold text-white sm:w-fit">
             Add store
           </button>
         </form>
@@ -40,10 +40,10 @@ export default async function StoresAdminPage() {
           <p>No stores yet.</p>
         ) : (
           stores.map((store) => (
-            <div key={store.id} className="border rounded p-4 flex justify-between gap-4">
+            <div key={store.id} className="flex min-w-0 flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="font-semibold">{store.name}</p>
-                <p className="text-sm text-gray-500">/{store.slug}</p>
+                <p className="break-words font-semibold">{store.name}</p>
+                <p className="break-all text-sm text-gray-500">/{store.slug}</p>
                 {store.website_url && (
                   <p className="text-sm text-gray-500">{store.website_url}</p>
                 )}
@@ -54,7 +54,7 @@ export default async function StoresAdminPage() {
                   await toggleStore(store.id, store.is_active);
                 }}
               >
-                <button className="border px-3 py-1 rounded">
+                <button className="min-h-11 min-w-24 rounded-lg border border-slate-300 px-4 py-2 font-medium">
                   {store.is_active ? "Disable" : "Enable"}
                 </button>
               </form>
