@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import {
   createMerchantStore,
   createMerchantItem,
-  submitMerchantPromo,
   withdrawMerchantPromo,
 } from "@/app/actions/merchant-office";
+import MerchantPromoForm from "./merchant-promo-form";
 
 export const dynamic = "force-dynamic";
 
@@ -240,41 +240,8 @@ export default async function MerchantBusinessOffice({
               </div>
             )}
             {activeStores.length > 0 && (
-              <form action={submitMerchantPromo} className={sectionClass + " max-w-2xl space-y-3"}>
-                <h3 className="text-lg font-semibold">Submit a new promotion</h3>
-                <input type="hidden" name="organization_id" value={orgId}/>
-                <div><label className={labelClass} htmlFor="promo-store">Shop/branch</label>
-                  <select id="promo-store" name="store_id" required className={inputClass}>
-                    {activeStores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                  </select></div>
-                <div><label className={labelClass} htmlFor="promo-item">Product/service (optional)</label>
-                  <select id="promo-item" name="item_id" className={inputClass} defaultValue="">
-                    <option value="">Shop-wide discount</option>
-                    {items.filter(i=>i.is_active && activeStores.some(s=>s.id===i.store_id)).map(item =>
-                      <option key={item.id} value={item.id}>
-                        {stores.find(s => s.id === item.store_id)?.name} — {item.name}
-                      </option>)}
-                  </select>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Select an item belonging to the chosen shop.
-                  </p>
-                </div>
-                <div><label htmlFor="promo-code" className={labelClass}>Promo code</label>
-                  <input id="promo-code" name="code" required maxLength={80}
-                    placeholder="SAVE20" className={inputClass}/></div>
-                <div><label htmlFor="promo-title" className={labelClass}>Offer title (optional)</label>
-                  <input id="promo-title" name="title" maxLength={200}
-                    placeholder="20% off selected services" className={inputClass}/></div>
-                <div><label htmlFor="promo-description" className={labelClass}>Terms (optional)</label>
-                  <textarea id="promo-description" name="description" maxLength={3000}
-                    rows={2} className={inputClass}/></div>
-                <div><label htmlFor="promo-url" className={labelClass}>Destination URL</label>
-                  <input id="promo-url" name="destination_url" type="url" required
-                    placeholder="https://yourshop.co.uk/offer" className={inputClass}/></div>
-                <div><label htmlFor="promo-expires" className={labelClass}>Expiry date (optional)</label>
-                  <input id="promo-expires" name="expires_at" type="date" className={inputClass}/></div>
-                <button type="submit" className={buttonClass}>Submit for approval</button>
-              </form>
+              <MerchantPromoForm organizationId={orgId}
+                stores={activeStores} items={items}/>
             )}
           </section>
         </>
