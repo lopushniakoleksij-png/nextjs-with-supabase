@@ -10,7 +10,7 @@ create table public.merchant_applications (
     check (char_length(btrim(organization_name)) between 2 and 200),
   organization_type text not null
     check (organization_type in ('company','shop','service_provider')),
-  website_url text,
+  website_url text check (website_url is null or website_url ~* '^https?://'),
   contact_email text not null check (char_length(btrim(contact_email)) between 3 and 254),
   company_registration_number text,
   application_note text,
@@ -94,7 +94,7 @@ begin
     raise exception 'merchant review forbidden' using errcode='42501';
   end if;
   if p_application_id is null
-    or p_decision not in ('approve','reject') then
+    or p_decision is null or p_decision not in ('approve','reject') then
     raise exception 'invalid merchant review request' using errcode='22023';
   end if;
 
