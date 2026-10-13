@@ -46,3 +46,9 @@ jobs:
 
       - name: Assert tenant and role isolation with multi-store fixtures
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p3_merchant_tenant_isolation.sql
+
+      - name: Apply proposed P3.1 merchant application migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261013020000_p3_1_merchant_applications.sql
+
+      - name: Assert applicant and administrator verification security
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p3_1_merchant_application_flow.sql
