@@ -1,0 +1,48 @@
+name: P3 Merchant Office Foundation
+
+on:
+  pull_request:
+    paths:
+      - "supabase/migrations/20261013010000_p3_merchant_office_foundation.sql"
+      - "supabase/tests/p3_*"
+      - ".github/workflows/p3-merchant-foundation.yml"
+
+jobs:
+  tenant-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: p3_merchant_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p3_merchant_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: p3_merchant_ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update -qq && sudo apt-get install -y postgresql-client
+
+      - name: Create disposable auth and legacy schema
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p3_ci_bootstrap.sql
+
+      - name: Apply draft Merchant Office additive migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261013010000_p3_merchant_office_foundation.sql
+
+      - name: Assert tenant and role isolation with multi-store fixtures
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p3_merchant_tenant_isolation.sql
