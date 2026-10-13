@@ -1,0 +1,90 @@
+name: P3.3 Real Local Supabase Auth and Merchant E2E
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/p3-3-real-auth.yml"
+      - "supabase/tests/p3_3_*"
+      - "app/merchant/**"
+      - "app/actions/merchant-office.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  real-local-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Check out current draft P3.3 source
+        uses: actions/checkout@v4
+
+      - name: Check out exact P2 migration source (not remote DB)
+        uses: actions/checkout@v4
+        with:
+          ref: c0e08f1acf385a606e5647a1a5886c2639ff4bd7
+          path: p2-verified
+          persist-credentials: false
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: latest
+
+      - name: Start disposable local Supabase Auth REST and database
+        run: |
+          # Existing repo history requires a pre-existing profiles table,
+          # so migration replay is done locally in strict audited order below.
+          mv supabase/migrations /tmp/p3-candidate-migrations
+          mkdir supabase/migrations
+          supabase init
+          supabase start -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor,mailpit
+          rm -rf supabase/migrations
+          mv /tmp/p3-candidate-migrations supabase/migrations
+
+      - name: Replay P2 and P3 exact migrations against LOCAL Supabase only
+        env:
+          P3_CI_LOCAL_ONLY: "yes"
+        run: bash supabase/tests/p3_3_replay_local_supabase.sh
+
+      - name: Export disposable local API and credentials
+        run: |
+          supabase status -o env > /tmp/p3-local-status.env
+          source /tmp/p3-local-status.env
+          test "${API_URL}" = "http://127.0.0.1:54321"
+          test -n "${ANON_KEY}"
+          test -n "${SERVICE_ROLE_KEY}"
+          echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}" >> "$GITHUB_ENV"
+          echo "P3_CI_LOCAL_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}" >> "$GITHUB_ENV"
+
+      - name: Install Next.js and disposable browser test dependencies
+        run: |
+          npm ci
+          npm install --no-save playwright@1.56.0
+          npx playwright install --with-deps chromium
+
+      - name: Build full Next.js merchant platform with local Auth
+        run: npm run build
+
+      - name: Start Next.js on localhost
+        run: |
+          nohup npm run start -- --port 3333 > /tmp/p3-next-server.log 2>&1 &
+          echo $! > /tmp/p3-next-server.pid
+
+      - name: Browser-test real login, business verification and promo approval
+        env:
+          CI: "true"
+        run: node supabase/tests/p3_3_real_auth_browser.cjs
+
+      - name: Stop disposable browser app and Supabase stack
+        if: always()
+        run: |
+          if test -f /tmp/p3-next-server.pid; then kill "$(cat /tmp/p3-next-server.pid)" || true; fi
+          supabase stop --no-backup || true
