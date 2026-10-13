@@ -5,6 +5,8 @@ on:
     paths:
       - "supabase/migrations/20261013010000_p3_merchant_office_foundation.sql"
       - "supabase/migrations/20261013020000_p3_1_merchant_applications.sql"
+      - "supabase/migrations/20261013030000_p3_2_merchant_store_items_promos.sql"
+      - "app/actions/merchant-office.ts"
       - "supabase/tests/p3_*"
       - ".github/workflows/p3-merchant-foundation.yml"
       - "app/merchant/**"
@@ -59,3 +61,9 @@ jobs:
 
       - name: Assert applicant and administrator verification security
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p3_1_merchant_application_flow.sql
+
+      - name: Apply proposed P3.2 merchant shop, item and promo permissions
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261013030000_p3_2_merchant_store_items_promos.sql
+
+      - name: Assert owner, manager, editor, revoked and tenant isolation
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p3_2_merchant_office_flow.sql
