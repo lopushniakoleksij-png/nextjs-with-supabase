@@ -103,7 +103,8 @@ create policy "P3 member reads own organization"
 on public.merchant_organizations for select to authenticated
 using (exists (
   select 1 from public.merchant_memberships m
-  where m.organization_id = id and m.user_id = (select auth.uid())
+  where m.organization_id = public.merchant_organizations.id
+    and m.user_id = (select auth.uid())
     and m.status = 'active'
 ));
 
