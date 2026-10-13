@@ -25,9 +25,8 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',true);
 
 insert into public.merchant_applications (
-  id,applicant_user_id,organization_name,organization_type,contact_email
+  applicant_user_id,organization_name,organization_type,contact_email
 ) values (
-  '11111111-1111-4111-8111-111111111111',
   'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   'Merchant A','company','business-a@ci.invalid'
 );
@@ -44,14 +43,14 @@ begin
   begin
     update public.merchant_applications
     set status='approved'
-    where id='11111111-1111-4111-8111-111111111111';
+    where id=(select id from public.merchant_applications where applicant_user_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
   exception when insufficient_privilege then v_blocked := true; end;
   if not v_blocked then raise exception 'FAIL: applicant directly changed review status'; end if;
 
   v_blocked := false;
   begin
     perform public.review_merchant_application(
-      '11111111-1111-4111-8111-111111111111','approve');
+      (select id from public.merchant_applications where applicant_user_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),'approve');
   exception when insufficient_privilege then v_blocked := true; end;
   if not v_blocked then raise exception 'FAIL: applicant approved own business'; end if;
 
@@ -77,10 +76,9 @@ $user_a$;
 
 select set_config('request.jwt.claim.sub','cccccccc-cccc-4ccc-8ccc-cccccccccccc',true);
 insert into public.merchant_applications
- (id,applicant_user_id,organization_name,organization_type,contact_email)
+ (applicant_user_id,organization_name,organization_type,contact_email)
 values
- ('22222222-2222-4222-8222-222222222222',
-  'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+ ('cccccccc-cccc-4ccc-8ccc-cccccccccccc',
   'Merchant B','service_provider','business-b@ci.invalid');
 
 do $user_b$
@@ -103,13 +101,13 @@ begin
 
   begin
     perform public.review_merchant_application(
-      '11111111-1111-4111-8111-111111111111',null);
+      (select id from public.merchant_applications where applicant_user_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),null);
   exception when invalid_parameter_value then v_blocked:=true; end;
   if not v_blocked then raise exception 'FAIL: null review decision was allowed'; end if;
   v_blocked:=false;
 
   select public.review_merchant_application(
-    '11111111-1111-4111-8111-111111111111','approve'
+    (select id from public.merchant_applications where applicant_user_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),'approve'
   ) into v_org;
   if v_org is null then raise exception 'FAIL: approved business had no organization'; end if;
 
@@ -124,21 +122,21 @@ begin
   if v_count<>1 then raise exception 'FAIL: approval failed to create initial owner'; end if;
 
   select count(*) into v_count from public.merchant_applications
-  where id='11111111-1111-4111-8111-111111111111'
+  where id=(select id from public.merchant_applications where applicant_user_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb')
     and status='approved' and approved_organization_id=v_org
     and reviewed_by='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   if v_count<>1 then raise exception 'FAIL: approved review record inconsistent'; end if;
 
   begin
     perform public.review_merchant_application(
-      '11111111-1111-4111-8111-111111111111','approve');
+      (select id from public.merchant_applications where applicant_user_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),'approve');
   exception when invalid_parameter_value then v_blocked:=true; end;
   if not v_blocked then raise exception 'FAIL: same application approved twice'; end if;
 
   perform public.review_merchant_application(
-    '22222222-2222-4222-8222-222222222222','reject');
+    (select id from public.merchant_applications where applicant_user_id='cccccccc-cccc-4ccc-8ccc-cccccccccccc'),'reject');
   select count(*) into v_count from public.merchant_applications
-  where id='22222222-2222-4222-8222-222222222222' and status='rejected'
+  where id=(select id from public.merchant_applications where applicant_user_id='cccccccc-cccc-4ccc-8ccc-cccccccccccc') and status='rejected'
     and approved_organization_id is null;
   if v_count<>1 then raise exception 'FAIL: rejection did not finalize application'; end if;
 
