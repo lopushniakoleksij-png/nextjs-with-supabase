@@ -41,6 +41,10 @@ export default async function HomePage() {
         <p className="text-lg text-gray-600 mb-6">
           Active offers with community success signals.
         </p>
+        <a href="/merchant"
+          className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-5 py-2 font-medium text-slate-800 hover:bg-slate-100">
+          For businesses — Merchant Office
+        </a>
       </div>
 
       <div className="max-w-4xl mx-auto space-y-6">

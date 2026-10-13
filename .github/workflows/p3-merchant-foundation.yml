@@ -4,8 +4,15 @@ on:
   pull_request:
     paths:
       - "supabase/migrations/20261013010000_p3_merchant_office_foundation.sql"
+      - "supabase/migrations/20261013020000_p3_1_merchant_applications.sql"
       - "supabase/tests/p3_*"
       - ".github/workflows/p3-merchant-foundation.yml"
+      - "app/merchant/**"
+      - "app/admin/merchants/**"
+      - "app/actions/merchant-applications.ts"
+      - "app/auth/login/page.tsx"
+      - "app/page.tsx"
+      - "components/sidebar.tsx"
 
 jobs:
   tenant-isolation:
@@ -46,3 +53,9 @@ jobs:
 
       - name: Assert tenant and role isolation with multi-store fixtures
         run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p3_merchant_tenant_isolation.sql
+
+      - name: Apply proposed P3.1 merchant application migration
+        run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261013020000_p3_1_merchant_applications.sql
+
+      - name: Assert applicant and administrator verification security
+        run: psql -v ON_ERROR_STOP=1 -f supabase/tests/p3_1_merchant_application_flow.sql
