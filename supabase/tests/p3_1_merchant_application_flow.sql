@@ -101,6 +101,13 @@ begin
   select count(*) into v_count from public.merchant_applications;
   if v_count<>2 then raise exception 'FAIL: platform admin cannot see full review queue'; end if;
 
+  begin
+    perform public.review_merchant_application(
+      '11111111-1111-4111-8111-111111111111',null);
+  exception when invalid_parameter_value then v_blocked:=true; end;
+  if not v_blocked then raise exception 'FAIL: null review decision was allowed'; end if;
+  v_blocked:=false;
+
   select public.review_merchant_application(
     '11111111-1111-4111-8111-111111111111','approve'
   ) into v_org;
