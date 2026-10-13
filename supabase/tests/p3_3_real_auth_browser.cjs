@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* P3.3 real, local Supabase Auth + Next.js browser acceptance.
  * CI only. NEVER supply a remote URL or production credential.
  * Uses ephemeral local service-role key solely to provision synthetic users.
