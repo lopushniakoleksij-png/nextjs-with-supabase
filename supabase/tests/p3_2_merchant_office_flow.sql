@@ -103,16 +103,6 @@ begin
   exception when insufficient_privilege then blocked:=true; end;
   if not blocked then raise exception 'FAIL: cross-company promo allowed'; end if;
 
-  -- A cannot place arbitrary pending promo directly on another verified tenant.
-  blocked:=false;
-  begin
-    insert into public.promo_codes
-      (store_id, code, destination_url, submitted_by, approved)
-    values ('66666666-6666-4666-8666-666666666666',
-            'DIRECT-CROSS','https://b.invalid','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',false);
-  exception when insufficient_privilege or foreign_key_violation then blocked:=true; end;
-  if not blocked then raise exception 'FAIL: direct cross-company promo write allowed'; end if;
-
   -- A can withdraw only its own offer; never approve via RPC.
   if not public.merchant_withdraw_promo('11111111-1111-4111-8111-111111111111',offer_a)
   then raise exception 'FAIL: owner failed own withdrawal'; end if;
@@ -125,6 +115,28 @@ reset role;
 insert into public.stores(id,name,slug,merchant_organization_id)
  values ('66666666-6666-4666-8666-666666666666','Tenant B shop',
          'p32-tenant-b','22222222-2222-4222-8222-222222222222');
+
+-- Add a deterministic A-owned item to exercise foreign item rejection.
+insert into public.merchant_items(id,organization_id,store_id,item_type,name)
+select 'aaaaaaaa-0000-4000-8000-000000000001',
+ '11111111-1111-4111-8111-111111111111',
+ s.id,'product','Tenant A fixed item'
+from public.stores s where s.slug='p32-shop-a-one';
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',true);
+do $a_direct$
+declare blocked boolean:=false;
+begin
+  begin
+    insert into public.promo_codes
+      (store_id,code,destination_url,submitted_by,approved)
+    values ('66666666-6666-4666-8666-666666666666',
+      'DIRECT-CROSS','https://b.invalid',
+      'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',false);
+  exception when insufficient_privilege then blocked:=true; end;
+  if not blocked then raise exception 'FAIL: direct A insertion into B store was allowed'; end if;
+end $a_direct$;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','cccccccc-cccc-4ccc-8ccc-cccccccccccc',true);
@@ -149,12 +161,10 @@ begin
     perform public.merchant_submit_promo(
       '22222222-2222-4222-8222-222222222222',
       '66666666-6666-4666-8666-666666666666',
-      (select id from public.merchant_items where name='A featured product'),
+      'aaaaaaaa-0000-4000-8000-000000000001',
       'P32-CROSS-ITEM','Cross','Bad item','https://b.invalid/offer',null);
   exception when insufficient_privilege then blocked:=true; end;
-  -- Item ID may be hidden by RLS => NULL and allowed store-wide promo, so
-  -- separately check with known fixture id using superuser lookup below.
-  if blocked then null; end if;
+  if not blocked then raise exception 'FAIL: B linked a foreign company item'; end if;
 end $owner_b$;
 
 -- Editor can create items/offers but cannot create stores or withdraw offers.
