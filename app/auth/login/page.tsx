@@ -19,18 +19,34 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
+    if (error || !data.user) {
+      setError(error?.message || "Unable to complete sign in");
       setLoading(false);
       return;
     }
 
-    router.push("/dashboard");
+    // A verified platform admin keeps the existing dashboard.
+    // Ordinary signed-in users go to their private Merchant Office,
+    // never to an administrator-only route.
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) {
+      setError("Unable to check account access. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    router.push(profile?.role === "admin" ? "/dashboard" : "/merchant");
+    router.refresh();
   };
 
   return (
@@ -89,6 +105,12 @@ export default function LoginPage() {
         <Link href="/auth/forgot-password" className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-indigo-700 underline">
           Forgot your password?
         </Link>
+        <p className="mt-3 text-sm text-slate-600">
+          Registering a business?{" "}
+          <Link href="/auth/sign-up" className="font-semibold text-indigo-700 underline">
+            Create an account
+          </Link>
+        </p>
       </div>
     </div>
   );
