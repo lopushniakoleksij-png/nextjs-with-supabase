@@ -96,10 +96,17 @@ export default async function MerchantOffice() {
                       {org.status}
                     </span>
                   </p>
-                  <p className="mt-3 text-sm text-slate-600">
-                    Shops, product listings and promo management will become
-                    available in the next Merchant Office stage.
-                  </p>
+                  {org.status === "verified" ? (
+                    <Link href={`/merchant/business/${org.id}`}
+                      className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-indigo-700 px-4 py-2 text-sm font-semibold text-white">
+                      Manage shops and offers
+                    </Link>
+                  ) : (
+                    <p className="mt-3 text-sm text-amber-700">
+                      This business requires an administrator review before
+                      shops and offers can be managed.
+                    </p>
+                  )}
                 </article>
               );
             })}
