@@ -228,7 +228,7 @@ export default async function HomePage() {
               <h2 id="offers-title" className="mt-3 text-4xl font-extrabold tracking-[-0.055em] text-[#173d33] sm:text-5xl">
                 Live offers
               </h2>
-              <p className="mt-3 max-w-xl text-base text-[#61746a]">Only eligible offers are shown here. Availability will grow after real merchants are approved.</p>
+              <p className="mt-3 max-w-xl text-base text-[#61746a]">This area displays approved, active and unexpired offers when available. Merchant onboarding is not live yet.</p>
             </div>
             <span className="rounded-full border border-[#d5e5da] bg-white px-4 py-2 text-xs font-bold text-[#4d7260]">
               {promos.length === 0 ? "Preparing for pilot" : "Available offers"}
