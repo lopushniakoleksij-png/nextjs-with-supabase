@@ -2,14 +2,25 @@ import "./globals.css";
 import type { Metadata } from "next";
 import FingerprintInit from "../components/FingerprintInit";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://nextjs-with-supabase-neon-ten.vercel.app";
+// Offqira is the new public-facing brand and the attached production domain.
+// The old Vercel URL remains usable; canonical marketing links prefer Offqira.
+const siteUrl = "https://offqira.com";
+const description =
+  "Offqira is a UK-based promotional offers platform in development. Explore our product vision and progress toward verified merchant pilots.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Promo Code Platform",
-  description: "Find verified promo codes and deals",
+  title: "Offqira | Better offers. Better discovery.",
+  description,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Offqira | Better offers. Better discovery.",
+    description,
+    siteName: "Offqira",
+    type: "website",
+    url: siteUrl,
+    locale: "en_GB",
+  },
 };
 
 export default function RootLayout({
