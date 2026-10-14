@@ -1,109 +1,52 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Promo Code 4
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+**UK-focused promotional offer discovery — early-stage product, not yet a commercial launch.**
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+Promo Code 4 is being built to connect customers looking for timely offers with businesses that want to publish and manage their own discounts across shops, branches and services. The direction is a **verified merchant, moderated promotion** platform rather than an unmoderated voucher feed.
 
-## Features
+**[Production homepage](https://nextjs-with-supabase-neon-ten.vercel.app)** · [Funding readiness](docs/FUNDING_READINESS.md) · [Merchant pilot plan](docs/MERCHANT_PILOT_PLAYBOOK.md)
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+> **Stage disclosure, 14 October 2026:** A public site and administrator foundation are deployed, but no actual stores, promotions or validated paying merchants have been established in production. Merchant self-service is in draft review, **not live**. Do not interpret this repository or a successful CI badge as evidence of paying customers, business partnerships or investment.
 
-## Demo
+## What is implemented on production
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- Public homepage retrieving approved, active, unexpired promotional offers from Supabase.
+- Store and promotional offer routes plus outbound click tracking and visitor feedback.
+- Supabase authentication and protected administrator interfaces to manage stores and offers.
+- Next.js / React / TypeScript, Supabase / PostgreSQL and Vercel deployment.
 
-## Deploy to Vercel
+Some screens are intentionally empty until real businesses and offers are approved.
 
-Vercel deployment will guide you through creating a Supabase account and project.
+## Proposed next stage — not yet shipped
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+- Verified merchant business applications and controlled platform-admin approval.
+- A company with multiple stores or service branches and isolated merchant memberships.
+- Product/service catalogues, merchant-submitted **pending** offers and admin moderation before publication.
+- Basic merchant engagement reporting, subject to privacy and anti-abuse review.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+Work under review: [P2 visibility/security hardening](https://github.com/lopushniakoleksij-png/nextjs-with-supabase/pull/14), [P3 Merchant Office foundation](https://github.com/lopushniakoleksij-png/nextjs-with-supabase/pull/15), and [P3 real Auth integration testing](https://github.com/lopushniakoleksij-png/nextjs-with-supabase/pull/18). All require explicit go/no-go review before production deployment.
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+## Pilot and funding strategy
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+Current priority is **commercial validation**, not a claim of traction. The first experiment is to interview real local merchants, collect evidence of unmet needs, and invite a small pilot cohort **only when security, merchant authorization and moderation are verified**.
 
-## Clone and run locally
+A future pre-seed raise of around **£150,000** has been proposed as a planning scenario, **not** a secured investment or an agreed valuation. Legal incorporation, IP ownership, market evidence and investor eligibility all need confirmation. We are not accepting investment through this repository.
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+See the [funding evidence checklist](docs/FUNDING_READINESS.md) and [merchant pilot playbook](docs/MERCHANT_PILOT_PLAYBOOK.md) for release dependencies and stage gates.
 
-2. Create a Next.js app using the Supabase Starter template npx command
+## Development
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+This repository uses the Next.js App Router, TypeScript, Supabase and npm.
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+1. Copy `.env.example` to `.env.local` and enter only your own development Supabase publishable connection details. Never commit keys or credentials.
+2. Run `npm ci`.
+3. Run `npm run dev`.
+4. For the standard checks, run `npm run typecheck`, `npm run lint` and `npm run build`.
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+**Development instructions do not authorise applying migrations to production.** The P2/P3 draft PRs contain guarded migrations and tests. Do not deploy them, bypass admin approval, or weaken row-level security without the explicit production release decision.
 
-3. Use `cd` to change into the app's directory
+## Public feedback and project use
 
-   ```bash
-   cd with-supabase-app
-   ```
+Technical bug reports and general product feedback can be raised through GitHub issues; avoid posting private customer, account, payment or security information. Commercial pilot and funding enquiries are not handled as public issue submissions.
 
-4. Rename `.env.example` to `.env.local` and update the following:
-
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
-
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
-
-5. You can now run the Next.js local development server:
-
-   ```bash
-   npm run dev
-   ```
-
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
-
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
-
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
-
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+**Code rights:** a public repository is not automatically open-source licensed. No project-wide `LICENSE` file has been verified as of this review. This README does not grant a licence, invite reuse of proprietary components, or establish GitHub Sponsors eligibility.
